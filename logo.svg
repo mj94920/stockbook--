@@ -1,0 +1,50 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="512" height="512">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="10" refY="5"
+      markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#F59E0B"/>
+    </marker>
+    <radialGradient id="bg" cx="50%" cy="38%" r="62%">
+      <stop offset="0%"   stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0A0F1A"/>
+    </radialGradient>
+    <clipPath id="clip"><circle cx="100" cy="100" r="72"/></clipPath>
+  </defs>
+
+  <!-- 링 + 배경 -->
+  <circle cx="100" cy="100" r="78" fill="url(#bg)" stroke="#475569" stroke-width="11"/>
+
+  <!-- 수평 기준선 (프라이스 레벨) -->
+  <g clip-path="url(#clip)" stroke="#263547" stroke-width="0.85">
+    <line x1="27" y1="75"  x2="173" y2="75"/>
+    <line x1="27" y1="95"  x2="173" y2="95"/>
+    <line x1="27" y1="115" x2="173" y2="115"/>
+    <line x1="27" y1="135" x2="173" y2="135"/>
+  </g>
+
+  <!-- 심지 -->
+  <line x1="48"  y1="105" x2="48"  y2="145" stroke="#FF6B6B" stroke-width="2.1"/>
+  <line x1="74"  y1="105" x2="74"  y2="125" stroke="#60A5FA" stroke-width="2.1"/>
+  <line x1="100" y1="80"  x2="100" y2="120" stroke="#FF6B6B" stroke-width="2.1"/>
+  <line x1="126" y1="80"  x2="126" y2="100" stroke="#60A5FA" stroke-width="2.1"/>
+  <line x1="152" y1="55"  x2="152" y2="95"  stroke="#FF6B6B" stroke-width="2.1"/>
+
+  <!-- 바디 -->
+  <!-- C1 UP  red  : opens @140, closes @110, H=30 -->
+  <rect x="40"  y="110" width="16" height="30" rx="1.5" fill="#EF4444"/>
+  <!-- C2 DOWN blue: opens @110, closes @120, H=10 (위 C1 중앙선 125 위에 위치) -->
+  <rect x="66"  y="110" width="16" height="10" rx="1.5" fill="#3B82F6"/>
+  <!-- C3 UP  red  : opens @115, closes @85,  H=30 -->
+  <rect x="92"  y="85"  width="16" height="30" rx="1.5" fill="#EF4444"/>
+  <!-- C4 DOWN blue: opens @85, closes @95,   H=10 (위 C3 중앙선 100 위에 위치) -->
+  <rect x="118" y="85"  width="16" height="10" rx="1.5" fill="#3B82F6"/>
+  <!-- C5 UP  red  : opens @90, closes @60,   H=30 -->
+  <rect x="144" y="60"  width="16" height="30" rx="1.5" fill="#EF4444"/>
+
+  <!-- 추세선: 양봉 고가(body top) → 음봉 저가(body bottom) -->
+  <polyline
+    points="48,110 74,120 100,85 126,95 152,60"
+    fill="none" stroke="#F59E0B" stroke-width="3.3"
+    stroke-linecap="round" stroke-linejoin="round"
+    marker-end="url(#arr)"/>
+</svg>
