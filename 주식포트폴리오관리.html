@@ -3323,11 +3323,17 @@ function renderCashList() {
     </tr>`).join('');
 }
 
-// 서비스워커 등록 (PWA)
+// 서비스워커 등록 (PWA) - 이전 캐시 강제 삭제 후 재등록
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .catch(() => {});  // 로컬 file:// 환경에서는 무시
+  window.addEventListener('load', async () => {
+    // 이전 서비스워커 모두 unregister
+    const regs = await navigator.serviceWorker.getRegistrations();
+    for (const reg of regs) { await reg.unregister(); }
+    // 이전 캐시 모두 삭제
+    const keys = await caches.keys();
+    for (const key of keys) { await caches.delete(key); }
+    // 새 서비스워커 등록
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
   });
 }
 </script>
