@@ -79,28 +79,27 @@
   .logo { font-size: 21px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
   .logo img { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; }
   .logo span { color: var(--accent); }
-  /* 헤더 액션 버튼 (백업/복원) */
+  /* 헤더 액션 버튼 (백업/복원) — 모바일 기준 원형 아이콘 버튼 */
   .header-action-btn {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    font-size: 13px;
-    font-family: inherit;
-    padding: 6px 14px;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
     border: 1.5px solid var(--border);
-    border-radius: 18px;
+    border-radius: 50%;
     background: var(--bg3);
     color: var(--text2);
     cursor: pointer;
     transition: all 0.15s;
-    white-space: nowrap;
     flex-shrink: 0;
-    height: 36px;
+    font-size: 18px;
+    font-family: inherit;
+    padding: 0;
   }
-  .header-action-btn:hover { background: var(--bg4); color: var(--text); border-color: var(--text3); }
+  .header-action-btn:hover { background: var(--bg4); border-color: var(--text3); }
+  .header-btn-text { display: none; }
   @media (max-width: 600px) {
-    .header-btn-text { display: none; }
-    .header-action-btn { padding: 6px 10px; gap: 0; font-size: 16px; }
     .header-date { display: none; }
   }
 
@@ -558,12 +557,18 @@
   @media (max-width:1100px) {
     .hts-layout { grid-template-columns:1fr; }
     .hts-right { position:static; max-height:none; }
+    /* 1열 레이아웃에서 잔고탭 외 다른 탭이 메인이 되도록 hts-left 기본 숨김 */
+    .hts-left { display: none; }
+    .hts-left.mobile-show { display: block; }
   }
 
   /* ── 모바일: 하단 고정 탭 바 ── */
   @media (max-width:768px) {
     body { padding-bottom: 68px; }
     .hts-right { position:static; max-height:none; }
+    /* 모바일에서 hts-left 기본 숨김 (잔고탭 활성 시에만 표시) */
+    .hts-left { display: none; }
+    .hts-left.mobile-show { display: block; }
     /* 서브탭을 화면 하단에 고정 */
     .sub-tabs {
       position: fixed;
@@ -742,11 +747,12 @@
   <!-- ── RIGHT: 서브탭 패널 ── -->
   <div class="hts-right">
     <div class="sub-tabs">
-      <button class="sub-tab-btn active" onclick="switchSubTab('add')"><span class="tab-icon">➕</span><span class="tab-text">매수등록</span></button>
-      <button class="sub-tab-btn" onclick="switchSubTab('journal')"><span class="tab-icon">📓</span><span class="tab-text">투자일지</span></button>
-      <button class="sub-tab-btn" onclick="switchSubTab('trades')"><span class="tab-icon">📋</span><span class="tab-text">거래기록</span></button>
-      <button class="sub-tab-btn" onclick="switchSubTab('calc')"><span class="tab-icon">💧</span><span class="tab-text">물타기</span></button>
-      <button class="sub-tab-btn" onclick="switchSubTab('news')"><span class="tab-icon">📡</span><span class="tab-text">뉴스</span></button>
+      <button class="sub-tab-btn balance-tab" data-tab="balance" onclick="switchSubTab('balance')"><span class="tab-icon">💼</span><span class="tab-text">잔고</span></button>
+      <button class="sub-tab-btn active" data-tab="add" onclick="switchSubTab('add')"><span class="tab-icon">➕</span><span class="tab-text">매수등록</span></button>
+      <button class="sub-tab-btn" data-tab="journal" onclick="switchSubTab('journal')"><span class="tab-icon">📓</span><span class="tab-text">투자일지</span></button>
+      <button class="sub-tab-btn" data-tab="trades" onclick="switchSubTab('trades')"><span class="tab-icon">📋</span><span class="tab-text">거래기록</span></button>
+      <button class="sub-tab-btn" data-tab="calc" onclick="switchSubTab('calc')"><span class="tab-icon">💧</span><span class="tab-text">물타기</span></button>
+      <button class="sub-tab-btn" data-tab="news" onclick="switchSubTab('news')"><span class="tab-icon">📡</span><span class="tab-text">뉴스</span></button>
     </div>
     <div class="sub-tab-body">
 
@@ -1187,19 +1193,19 @@
             </div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
-          <div class="news-link-item" onclick="openUrl('https://dart.fss.or.kr/dsae001/selectHalfDetail.do')">
+          <div class="news-link-item" onclick="openUrl('https://dart.fss.or.kr/dsab007/main.do')">
             <div class="nl-icon">📊</div>
             <div class="nl-info">
-              <h4>반기보고서 / 사업보고서</h4>
-              <p>정기보고서 일괄 조회</p>
+              <h4>분기 / 반기 / 사업보고서</h4>
+              <p>DART 문서검색 — 보고서 종류별 필터 가능</p>
             </div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
-          <div class="news-link-item" onclick="openUrl('https://dart.fss.or.kr/introduction/fssInfo.do')">
+          <div class="news-link-item" onclick="openUrl('https://opendart.fss.or.kr/intro/main.do')">
             <div class="nl-icon">ℹ️</div>
             <div class="nl-info">
-              <h4>DART OpenAPI</h4>
-              <p>공시 API 서비스 (개발자용)</p>
+              <h4>DART OpenAPI 신청</h4>
+              <p>OpenDART API 키 신청 및 서비스 안내</p>
             </div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
@@ -1214,12 +1220,12 @@
             <div class="nl-info"><h4>네이버 금융 뉴스</h4><p>종목 검색어로 최신 뉴스 조회</p></div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
-          <div class="news-link-item" onclick="openUrl('https://finance.naver.com/market/main.nhn')">
+          <div class="news-link-item" onclick="openUrl('https://finance.naver.com/')">
             <div class="nl-icon">📈</div>
             <div class="nl-info"><h4>네이버 금융 메인</h4><p>코스피·코스닥 시장 현황</p></div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
-          <div class="news-link-item" onclick="openUrl('https://www.hankyung.com/category/finance')">
+          <div class="news-link-item" onclick="openUrl('https://www.hankyung.com/economy')">
             <div class="nl-icon">📋</div>
             <div class="nl-info"><h4>한국경제 증권</h4><p>한국경제신문 증권 섹션</p></div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
@@ -1984,11 +1990,31 @@ function switchTab(name) {
   if (name === 'news') renderNewsPortfolioLinks();
 }
 function switchSubTab(name) {
+  const isMobile = window.innerWidth <= 1100;
+  const htsLeft = document.querySelector('.hts-left');
+  const subTabBody = document.querySelector('.sub-tab-body');
+
   document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+  const activeBtn = document.querySelector(`.sub-tab-btn[data-tab="${name}"]`);
+  if (activeBtn) activeBtn.classList.add('active');
+
+  if (name === 'balance') {
+    if (isMobile) {
+      htsLeft.classList.add('mobile-show');
+      subTabBody.style.display = 'none';
+    } else {
+      htsLeft.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    renderPortfolio();
+    return;
+  }
+
+  if (isMobile) {
+    htsLeft.classList.remove('mobile-show');
+    subTabBody.style.display = '';
+  }
+
   document.querySelectorAll('.sub-tab-panel').forEach(p => p.classList.remove('active'));
-  const tabNames = ['add','journal','trades','calc','news'];
-  const idx = tabNames.indexOf(name);
-  if (idx >= 0) document.querySelectorAll('.sub-tab-btn')[idx].classList.add('active');
   const panel = document.getElementById('stab-' + name);
   if (panel) panel.classList.add('active');
   if (name === 'journal')  { renderJournals(); updateJournalDatalist(); }
@@ -3190,10 +3216,10 @@ function renderNewsPortfolioLinks() {
     const enc    = encodeURIComponent(name);
     const encT   = encodeURIComponent(ticker || name);
 
-    // 네이버 금융 주가 (국내 6자리 코드가 있으면 종목 페이지, 없으면 검색)
+    // 네이버 금융 (국내 6자리 코드 → 종목 메인 페이지, 해외 → 네이버 금융 검색)
     const naverFinUrl = isKrCode(ticker)
-      ? `https://finance.naver.com/item/news.naver?code=${ticker}`
-      : `https://search.naver.com/search.naver?where=news&query=${enc}`;
+      ? `https://finance.naver.com/item/main.naver?code=${ticker}`
+      : `https://finance.naver.com/search/searchResult.naver?query=${encT}`;
 
     // KRX KIND 공시 (국내 종목만)
     const kindBtn = isKrCode(ticker)
@@ -3237,6 +3263,8 @@ document.getElementById('f_date').value = today();
 document.getElementById('j_buyDate').value = today();
 document.getElementById('t_date').value = today();
 renderPortfolio();
+// 모바일에서 초기 기본 탭을 잔고로 설정
+if (window.innerWidth <= 1100) { switchSubTab('balance'); }
 updateDatalist('stockNameList');
 updateDatalist('jStockList');
 updateDatalist('tStockList');
