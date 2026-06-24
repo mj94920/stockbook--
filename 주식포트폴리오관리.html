@@ -579,53 +579,43 @@
     .hts-layout { padding-top: 52px; }
   }
 
-  /* ── 모바일: 하단 고정 탭 바 ── */
+  /* ── 모바일: 상단 고정 탭 바 ── */
   @media (max-width:768px) {
-    body { padding-bottom: 68px; }
+    body { padding-bottom: 0; }
     .hts-right { position:static; max-height:none; }
-    /* 서브탭을 화면 하단에 고정 */
     .sub-tabs {
       position: fixed;
-      bottom: 0; left: 0; right: 0;
+      top: 56px; left: 0; right: 0;
+      z-index: 300;
       border-radius: 0;
       border: none;
-      border-top: 1px solid var(--border);
-      padding: 0;
-      z-index: 300;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.10);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
       background: var(--bg2);
-      height: 60px;
+      padding: 4px 8px 0;
+      height: 44px;
+      overflow-x: auto;
+      white-space: nowrap;
     }
+    .hts-layout { padding-top: 44px; }
     .sub-tab-btn {
-      flex: 1;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 2px;
-      border-radius: 0;
-      border-bottom: none;
-      border-top: 2.5px solid transparent;
+      flex-shrink: 0;
+      flex-direction: row;
+      border-radius: 6px 6px 0 0;
+      border-bottom: 2.5px solid transparent;
+      border-top: none;
       height: 100%;
-      padding: 4px 2px 2px;
+      padding: 6px 10px;
     }
-    .sub-tab-btn:hover { background: var(--bg3); border-radius: 0; }
+    .sub-tab-btn:hover { background: var(--bg3); border-radius: 6px 6px 0 0; }
     .sub-tab-btn.active {
-      border-top-color: var(--accent);
-      border-bottom-color: transparent;
+      border-bottom-color: var(--accent);
       background: transparent;
     }
-    .tab-icon { font-size: 18px; line-height: 1; }
-    .tab-text { font-size: 10px; font-weight: 500; }
-    /* 서브탭 패널은 일반 흐름으로 (탭 위) */
+    .tab-icon { font-size: 14px; line-height: 1; }
+    .tab-text { font-size: 11px; font-weight: 500; }
     .sub-tab-body { border-radius: var(--radius); border: 1px solid var(--border); border-top: 1px solid var(--border); }
-    /* 포트폴리오 카드 그리드 2열로 */
     .summary-cards { grid-template-columns: repeat(2, 1fr) !important; }
-  }
-  @supports (padding-bottom: env(safe-area-inset-bottom)) {
-    @media (max-width:768px) {
-      .sub-tabs { padding-bottom: env(safe-area-inset-bottom); height: calc(60px + env(safe-area-inset-bottom)); }
-      body { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
-    }
   }
 </style>
 </head>
