@@ -215,6 +215,7 @@
   .btn-blue { background: var(--blue2); color: #fff; box-shadow: 0 2px 10px rgba(13,61,128,0.22); }
   .btn-blue:hover { background: var(--blue); }
   .btn-sm { padding: 7px 16px; font-size: 13px; border-radius: 16px; min-height: 34px; }
+  .news-link-btn { padding: 4px 10px !important; font-size: 11px !important; min-height: 26px !important; border-radius: 12px !important; }
 
   /* TABLES */
   .table-wrap { overflow-x: auto; }
@@ -3218,29 +3219,27 @@ function renderNewsPortfolioLinks() {
 
     // KRX KIND 공시 (국내 종목만)
     const kindBtn = isKrCode(ticker)
-      ? `<button class="btn btn-sm" style="border-color:var(--blue2);color:var(--blue)" onclick="openDartByCode('${ticker}')">KRX공시</button>`
+      ? `<button class="btn btn-sm news-link-btn" style="border-color:var(--blue2);color:var(--blue)" onclick="openDartByCode('${ticker}')">KRX</button>`
       : '';
 
     // 해외 종목 Investing.com
     const investingBtn = !isKrCode(ticker)
-      ? `<button class="btn btn-sm" style="border-color:var(--yellow);color:var(--yellow)" onclick="window.open('https://kr.investing.com/search/?q=${encT}','_blank')">Investing</button>`
+      ? `<button class="btn btn-sm news-link-btn" style="border-color:var(--yellow);color:var(--yellow)" onclick="window.open('https://kr.investing.com/search/?q=${encT}','_blank')">Inv.</button>`
       : '';
 
     return `
-    <div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid ${color};border-radius:var(--radius);padding:10px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px">
-      <div style="min-width:120px">
-        <div style="font-weight:700;font-size:15px;color:${color}">${name}</div>
-        ${ticker ? `<div style="font-size:12px;color:var(--text3);margin-top:1px">${ticker}</div>` : ''}
+    <div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid ${color};border-radius:var(--radius);padding:8px 12px;">
+      <div style="font-weight:700;font-size:13px;color:${color};margin-bottom:5px;">
+        ${name}${ticker ? `<span style="font-size:11px;color:var(--text3);font-weight:400;margin-left:6px">${ticker}</span>` : ''}
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center">
-        <button class="btn btn-sm" style="border-color:#e07b39;color:#e07b39"
-          onclick="window.open('https://dart.fss.or.kr/dsab007/main.do?autoSearch=N&selectKey=corp&textCrpNm=${enc}','_blank')">📋 DART공시</button>
-        <button class="btn btn-sm"
-          onclick="window.open('https://search.naver.com/search.naver?where=news&query=${enc}','_blank')">📰 뉴스검색</button>
-        <button class="btn btn-sm" style="border-color:var(--green);color:var(--green)"
-          onclick="window.open('${naverFinUrl}','_blank')">💹 네이버금융</button>
-        ${kindBtn}
-        ${investingBtn}
+      <div style="display:flex;flex-wrap:wrap;gap:4px;">
+        <button class="btn btn-sm news-link-btn" style="border-color:#e07b39;color:#e07b39"
+          onclick="window.open('https://dart.fss.or.kr/dsab007/main.do?autoSearch=N&selectKey=corp&textCrpNm=${enc}','_blank')">📋DART</button>
+        <button class="btn btn-sm news-link-btn"
+          onclick="window.open('https://search.naver.com/search.naver?where=news&query=${enc}','_blank')">📰뉴스</button>
+        <button class="btn btn-sm news-link-btn" style="border-color:var(--green);color:var(--green)"
+          onclick="window.open('${naverFinUrl}','_blank')">💹네이버</button>
+        ${kindBtn}${investingBtn}
       </div>
     </div>`;
   }).join('');
