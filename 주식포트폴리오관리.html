@@ -535,10 +535,14 @@
     box-shadow: -3px 0 8px rgba(0,0,0,0.06);
     z-index: 1;
   }
-  /* ── HTS 2-컬럼 레이아웃 ── */
-  .hts-layout { display:grid; grid-template-columns:1fr 520px; gap:16px; align-items:start; }
-  .hts-left { min-width:0; }
-  .hts-right { position:sticky; top:64px; max-height:calc(100vh - 76px); overflow-y:auto; overflow-x:hidden; }
+  /* ── HTS 레이아웃: 기본 1열 (잔고탭 외) ── */
+  .hts-layout { display:grid; grid-template-columns:1fr; gap:16px; align-items:start; }
+  .hts-left { display:none; min-width:0; }
+  .hts-left.mobile-show { display:block; }
+  .hts-right { position:static; max-height:none; overflow-y:visible; overflow-x:hidden; }
+  /* 잔고탭 활성: 2열 레이아웃 + sticky 우측 패널 */
+  .hts-layout.balance-mode { grid-template-columns:1fr 520px; }
+  .hts-layout.balance-mode .hts-right { position:sticky; top:64px; max-height:calc(100vh - 76px); overflow-y:auto; overflow-x:hidden; }
   /* ── 우측 서브탭 ── */
   .sub-tabs { display:flex; background:var(--bg2); border:1px solid var(--border); border-bottom:none; border-radius:var(--radius) var(--radius) 0 0; padding:4px 6px 0; flex-wrap:wrap; }
   .sub-tab-btn { padding:7px 10px; background:none; border:none; border-bottom:2px solid transparent; border-radius:6px 6px 0 0; color:var(--text2); cursor:pointer; font-size:12px; font-family:inherit; transition:all 0.15s; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; }
@@ -555,20 +559,15 @@
   #stab-journal #journalLayout { grid-template-columns:1fr !important; }
   #stab-news .news-grid { grid-template-columns:1fr !important; }
   @media (max-width:1100px) {
-    .hts-layout { grid-template-columns:1fr; }
-    .hts-right { position:static; max-height:none; }
-    /* 1열 레이아웃에서 잔고탭 외 다른 탭이 메인이 되도록 hts-left 기본 숨김 */
-    .hts-left { display: none; }
-    .hts-left.mobile-show { display: block; }
+    /* 좁은 화면에서는 잔고탭도 1열 */
+    .hts-layout.balance-mode { grid-template-columns:1fr; }
+    .hts-layout.balance-mode .hts-right { position:static; max-height:none; overflow-y:visible; }
   }
 
   /* ── 모바일: 하단 고정 탭 바 ── */
   @media (max-width:768px) {
     body { padding-bottom: 68px; }
     .hts-right { position:static; max-height:none; }
-    /* 모바일에서 hts-left 기본 숨김 (잔고탭 활성 시에만 표시) */
-    .hts-left { display: none; }
-    .hts-left.mobile-show { display: block; }
     /* 서브탭을 화면 하단에 고정 */
     .sub-tabs {
       position: fixed;
@@ -747,8 +746,8 @@
   <!-- ── RIGHT: 서브탭 패널 ── -->
   <div class="hts-right">
     <div class="sub-tabs">
-      <button class="sub-tab-btn balance-tab" data-tab="balance" onclick="switchSubTab('balance')"><span class="tab-icon">💼</span><span class="tab-text">잔고</span></button>
-      <button class="sub-tab-btn active" data-tab="add" onclick="switchSubTab('add')"><span class="tab-icon">➕</span><span class="tab-text">매수등록</span></button>
+      <button class="sub-tab-btn active balance-tab" data-tab="balance" onclick="switchSubTab('balance')"><span class="tab-icon">💼</span><span class="tab-text">잔고</span></button>
+      <button class="sub-tab-btn" data-tab="add" onclick="switchSubTab('add')"><span class="tab-icon">➕</span><span class="tab-text">매수등록</span></button>
       <button class="sub-tab-btn" data-tab="journal" onclick="switchSubTab('journal')"><span class="tab-icon">📓</span><span class="tab-text">투자일지</span></button>
       <button class="sub-tab-btn" data-tab="trades" onclick="switchSubTab('trades')"><span class="tab-icon">📋</span><span class="tab-text">거래기록</span></button>
       <button class="sub-tab-btn" data-tab="calc" onclick="switchSubTab('calc')"><span class="tab-icon">💧</span><span class="tab-text">물타기</span></button>
@@ -757,7 +756,7 @@
     <div class="sub-tab-body">
 
       <!-- ➕ 매수등록 -->
-      <div id="stab-add" class="sub-tab-panel active">
+      <div id="stab-add" class="sub-tab-panel">
   <!-- ADD STOCK FORM -->
   <div class="card">
     <div class="card-title">➕ 매수 / 추가 매수</div>
@@ -1990,8 +1989,8 @@ function switchTab(name) {
   if (name === 'news') renderNewsPortfolioLinks();
 }
 function switchSubTab(name) {
-  const isMobile = window.innerWidth <= 1100;
-  const htsLeft = document.querySelector('.hts-left');
+  const htsLeft    = document.querySelector('.hts-left');
+  const htsLayout  = document.querySelector('.hts-layout');
   const subTabBody = document.querySelector('.sub-tab-body');
 
   document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
@@ -1999,20 +1998,16 @@ function switchSubTab(name) {
   if (activeBtn) activeBtn.classList.add('active');
 
   if (name === 'balance') {
-    if (isMobile) {
-      htsLeft.classList.add('mobile-show');
-      subTabBody.style.display = 'none';
-    } else {
-      htsLeft.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    htsLeft.classList.add('mobile-show');
+    htsLayout.classList.add('balance-mode');
+    subTabBody.style.display = 'none';
     renderPortfolio();
     return;
   }
 
-  if (isMobile) {
-    htsLeft.classList.remove('mobile-show');
-    subTabBody.style.display = '';
-  }
+  htsLeft.classList.remove('mobile-show');
+  htsLayout.classList.remove('balance-mode');
+  subTabBody.style.display = '';
 
   document.querySelectorAll('.sub-tab-panel').forEach(p => p.classList.remove('active'));
   const panel = document.getElementById('stab-' + name);
@@ -3216,10 +3211,10 @@ function renderNewsPortfolioLinks() {
     const enc    = encodeURIComponent(name);
     const encT   = encodeURIComponent(ticker || name);
 
-    // 네이버 금융 (국내 6자리 코드 → 종목 메인 페이지, 해외 → 네이버 금융 검색)
+    // 네이버 금융 (국내 6자리 코드 → 종목 메인 페이지, 기타 → 네이버 검색 주가)
     const naverFinUrl = isKrCode(ticker)
       ? `https://finance.naver.com/item/main.naver?code=${ticker}`
-      : `https://finance.naver.com/search/searchResult.naver?query=${encT}`;
+      : `https://search.naver.com/search.naver?where=nexearch&query=${enc}+주가`;
 
     // KRX KIND 공시 (국내 종목만)
     const kindBtn = isKrCode(ticker)
@@ -3264,7 +3259,7 @@ document.getElementById('j_buyDate').value = today();
 document.getElementById('t_date').value = today();
 renderPortfolio();
 // 모바일에서 초기 기본 탭을 잔고로 설정
-if (window.innerWidth <= 1100) { switchSubTab('balance'); }
+switchSubTab('balance');
 updateDatalist('stockNameList');
 updateDatalist('jStockList');
 updateDatalist('tStockList');
