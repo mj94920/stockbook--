@@ -1,0 +1,36 @@
+{
+  "name": "stockbook",
+  "version": "1.2.0",
+  "description": "나만의 주식 포트폴리오 관리 앱",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.mj.stockbook",
+    "productName": "StockBook",
+    "electronVersion": "31.7.7",
+    "directories": {
+      "output": "C:\\Temp\\StockBookBuild"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "주식포트폴리오관리.html",
+      "manifest.json",
+      "sw.js",
+      "icon-192.png",
+      "icon-512.png",
+      "logo.svg"
+    ],
+    "win": {
+      "target": "zip",
+      "icon": "icon-512.png"
+    }
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.0.0"
+  }
+}
