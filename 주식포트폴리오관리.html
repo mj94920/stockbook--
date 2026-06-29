@@ -595,7 +595,9 @@
       padding: 4px 8px 0;
       height: 44px;
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
       white-space: nowrap;
+      flex-wrap: nowrap;
     }
     .hts-layout { padding-top: 44px; }
     .sub-tab-btn {
@@ -1077,54 +1079,7 @@
     </div>
     <div id="tradeEmpty" class="empty-state" style="display:none">거래 기록이 없습니다</div>
   </div>
-
-  <!-- QUICK ADD TRADE -->
-  <div class="card">
-    <div class="card-title">➕ 거래 빠른 등록</div>
-    <div class="form-grid">
-      <div class="form-group"><label>날짜 *</label><input type="date" id="t_date"></div>
-      <div class="form-group"><label>종목명 *</label><input type="text" id="t_name" placeholder="삼성전자" list="tStockList"><datalist id="tStockList"></datalist></div>
-      <div class="form-group"><label>매도/매수 *</label>
-        <select id="t_type">
-          <option value="">선택</option>
-          <option value="buy">매수</option>
-          <option value="sell">매도</option>
-        </select>
-      </div>
-      <div class="form-group"><label>가격 *</label><input type="text" inputmode="decimal" id="t_price" placeholder="75,000" oninput="formatWithComma(this);refreshAllPct('t_','t_price')"></div>
-      <div class="form-group"><label>수량 *</label><input type="number" id="t_qty" placeholder="10" min="1"></div>
-      <div class="form-group"><label>비중(%)</label><input type="number" id="t_weight" placeholder="10" min="0" max="100" step="0.1"></div>
-      <div class="form-group"><label>포트 위치</label>
-        <select id="t_pos">
-          <option value="">선택</option>
-          <option value="top">제일 위</option>
-          <option value="mid">중간</option>
-          <option value="bot">제일 아래</option>
-        </select>
-      </div>
-      <div class="form-group"><label>수익률(%)</label><input type="number" id="t_return" placeholder="+5.2" step="any"></div>
-      <div class="form-group"><label>멘털 상태</label>
-        <select id="t_mental">
-          <option value="">선택</option>
-          <option>원칙 지켰어</option>
-          <option>아이고 흔들렸네</option>
-          <option>확신이 생겨 더 담고 싶다</option>
-          <option>물타기 하고 싶었다</option>
-        </select>
-      </div>
-      <div class="form-group"><label>비고</label><input type="text" id="t_note" placeholder="메모"></div>
-      <div style="display:flex;flex-direction:column;gap:8px;grid-column:1/-1;">
-        <div class="form-group"><label style="color:var(--green);font-size:12px;">🎯 목표가 1단계</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="t_target1" placeholder="가격" oninput="formatWithComma(this);syncPP('t_target1','t_target1_p',getNum('t_price'))" style="flex:1;min-width:0;"><input type="number" id="t_target1_p" placeholder="%" step="0.1" oninput="syncPC('t_target1_p','t_target1',getNum('t_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
-        <div class="form-group"><label style="color:var(--green);font-size:12px;">🎯 목표가 2단계</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="t_target2" placeholder="가격" oninput="formatWithComma(this);syncPP('t_target2','t_target2_p',getNum('t_price'))" style="flex:1;min-width:0;"><input type="number" id="t_target2_p" placeholder="%" step="0.1" oninput="syncPC('t_target2_p','t_target2',getNum('t_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
-        <div class="form-group"><label style="color:var(--green);font-size:12px;">🎯 목표가 3단계</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="t_target3" placeholder="가격" oninput="formatWithComma(this);syncPP('t_target3','t_target3_p',getNum('t_price'))" style="flex:1;min-width:0;"><input type="number" id="t_target3_p" placeholder="%" step="0.1" oninput="syncPC('t_target3_p','t_target3',getNum('t_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
-        <div class="form-group"><label style="color:var(--red);font-size:12px;">✂️ 손절가</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="t_stop1" placeholder="가격" oninput="formatWithComma(this);syncPP('t_stop1','t_stop1_p',getNum('t_price'))" style="flex:1;min-width:0;"><input type="number" id="t_stop1_p" placeholder="%" step="0.1" oninput="syncPC('t_stop1_p','t_stop1',getNum('t_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
-      </div>
-    </div>
-    <div class="form-actions">
-      <button class="btn btn-primary" onclick="addTrade()">등록</button>
-      <button class="btn btn-ghost" onclick="clearTradeForm()">초기화</button>
-    </div>
-  </div>
+  <datalist id="tStockList"></datalist>
 </div>
 
       <!-- 💰 예수금 -->
@@ -2341,10 +2296,6 @@ document.getElementById('f_name').addEventListener('blur', function() {
 // f_ticker 요소가 없는 경우 null 체크 (없으면 스킵)
 { const el = document.getElementById('f_ticker'); if (el) el.addEventListener('change', function() { autoFillFromTicker(this.value.trim(), 'f'); }); }
 
-// ① Fix — 종목명 자동완성 (거래 기록 폼)
-document.getElementById('t_name').addEventListener('change', function() {
-  autoFillFromPortfolio(this.value.trim(), 't');
-});
 
 // Live calc preview for add form
 document.getElementById('f_price').addEventListener('input', updateCalcPreview);
@@ -3122,39 +3073,6 @@ function renderTrades() {
   }).join('');
 }
 
-function addTrade() {
-  const name = document.getElementById('t_name').value.trim();
-  const type = document.getElementById('t_type').value;
-  const price = getNum('t_price');
-  const qty = parseInt(document.getElementById('t_qty').value);
-  if (!name || !type || isNaN(price) || isNaN(qty)) { alert('종목명, 구분, 가격, 수량은 필수입니다.'); return; }
-  state.trades.push({
-    date: document.getElementById('t_date').value || today(),
-    name, type, price, qty, total: price*qty,
-    weight: parseFloat(document.getElementById('t_weight').value)||null,
-    position: document.getElementById('t_pos').value,
-    pnl: null,
-    pnlPct: parseFloat(document.getElementById('t_return').value)||null,
-    mental: document.getElementById('t_mental').value,
-    note: document.getElementById('t_note').value,
-    buyReason:[], sellReason:[],
-    target1: getNumOrNull('t_target1'),
-    target2: getNumOrNull('t_target2'),
-    target3: getNumOrNull('t_target3'),
-    stop1:   getNumOrNull('t_stop1'),
-  });
-  save();
-  renderTrades();
-  clearTradeForm();
-}
-
-function clearTradeForm() {
-  ['t_name','t_price','t_qty','t_weight','t_return','t_note','t_target1','t_target1_p','t_target2','t_target2_p','t_target3','t_target3_p','t_stop1','t_stop1_p'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('t_type').value = '';
-  document.getElementById('t_pos').value = '';
-  document.getElementById('t_mental').value = '';
-  document.getElementById('t_date').value = today();
-}
 
 function cleanOrphanedData() {
   const portNames = new Set(state.portfolio.map(s => s.name));
@@ -3353,7 +3271,6 @@ load();
 document.getElementById('headerDate').textContent = new Date().toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric',weekday:'short'});
 document.getElementById('f_date').value = today();
 document.getElementById('j_buyDate').value = today();
-document.getElementById('t_date').value = today();
 renderPortfolio();
 // 모바일에서 초기 기본 탭을 잔고로 설정
 if (window.innerWidth <= 1100) { switchSubTab('balance'); }
