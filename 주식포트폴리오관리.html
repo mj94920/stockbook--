@@ -1597,38 +1597,74 @@ function autoFillFromTicker(tickerVal, fieldPrefix) {
 }
 
 // ============================================================
-// 시세 조회 — Yahoo Finance (15분 지연, 서버 불필요)
+// 시세 조회 — 한국: 네이버 금융 / 해외: 야후 파이낸스
 // ============================================================
 const YF_BASE = 'https://query1.finance.yahoo.com';
 
-// 단일 종목 시세 조회
-// 한국 6자리 코드는 .KS(코스피) → .KQ(코스닥) 순으로 시도
+// 한국 종목 전용 — 네이버 금융 모바일 API (6자리 코드, 코스피/코스닥 자동 구분)
+async function fetchNaverQuote(code) {
+  try {
+    const res = await fetch(
+      `https://m.stock.naver.com/api/stock/${code}/basic`,
+      { method: 'GET', credentials: 'omit' }
+    );
+    if (!res.ok) return null;
+    const d = await res.json();
+    const price  = parseFloat((d.closePrice  || '0').replace(/,/g, ''));
+    const change = parseFloat((d.compareToPreviousClosePrice || '0').replace(/,/g, ''));
+    const openP  = parseFloat((d.openPrice   || '0').replace(/,/g, ''));
+    if (!price) return null;
+    return {
+      symbol:    code,
+      price,
+      prevClose: Math.round((price - change) * 100) / 100,
+      openPrice: openP || null,
+      currency:  'KRW',
+    };
+  } catch (_) { return null; }
+}
+
+// 해외 종목 전용 — 야후 파이낸스
+async function fetchYFQuoteIntl(ticker) {
+  try {
+    const res = await fetch(
+      `${YF_BASE}/v8/finance/chart/${encodeURIComponent(ticker)}?range=1d&interval=1d&includePrePost=false`,
+      { method: 'GET', credentials: 'omit' }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    const meta = data?.chart?.result?.[0]?.meta;
+    if (!meta || !meta.regularMarketPrice) return null;
+    return {
+      symbol:    ticker,
+      price:     meta.regularMarketPrice,
+      prevClose: meta.previousClose ?? meta.chartPreviousClose ?? null,
+      openPrice: meta.regularMarketOpen ?? null,
+      currency:  meta.currency ?? 'USD',
+    };
+  } catch (_) { return null; }
+}
+
+// 통합 조회 — 한국 6자리는 네이버 우선, 실패 시 야후 / 해외는 야후 직접
 async function fetchYFQuote(rawTicker) {
   if (!rawTicker) return null;
-  rawTicker = rawTicker.trim().toUpperCase();
+  rawTicker = rawTicker.trim();
   const isKrNum = /^\d{6}$/.test(rawTicker);
-  const candidates = isKrNum ? [rawTicker + '.KS', rawTicker + '.KQ'] : [rawTicker];
 
-  for (const sym of candidates) {
-    try {
-      const res = await fetch(
-        `${YF_BASE}/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=1d&includePrePost=false`,
-        { method: 'GET', credentials: 'omit' }
-      );
-      if (!res.ok) continue;
-      const data = await res.json();
-      const meta = data?.chart?.result?.[0]?.meta;
-      if (!meta || !meta.regularMarketPrice) continue;
-      return {
-        symbol:    sym,
-        price:     meta.regularMarketPrice,
-        prevClose: meta.previousClose ?? meta.chartPreviousClose ?? null,
-        openPrice: meta.regularMarketOpen ?? null,
-        currency:  meta.currency ?? 'KRW',
-      };
-    } catch (_) { /* 다음 후보 시도 */ }
+  if (isKrNum) {
+    // 네이버 금융으로 먼저 시도 (코스피/코스닥 자동 구분, 정확도 높음)
+    const naver = await fetchNaverQuote(rawTicker);
+    if (naver) return naver;
+    // 네이버 CORS 차단 시 야후 파이낸스로 폴백
+    for (const suffix of ['.KS', '.KQ']) {
+      const yf = await fetchYFQuoteIntl(rawTicker + suffix);
+      if (yf) return yf;
+    }
+    return null;
   }
-  return null;
+
+  // 해외 종목 (AAPL, TSLA 등)
+  return fetchYFQuoteIntl(rawTicker.toUpperCase());
 }
 
 // 티커가 등록된 전 종목 일괄 시세 조회
