@@ -1393,6 +1393,25 @@
   </div>
 </div>
 
+<!-- MC SNAPSHOT MODAL -->
+<div class="modal-overlay" id="mcSnapshotModal">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-title">📌 월별 실제 잔액 입력</div>
+    <div id="mcSnapshotLabel" style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:14px;"></div>
+    <div class="form-group">
+      <label>실제 잔액 (원)</label>
+      <input type="text" inputmode="decimal" id="mcSnapshotInput" placeholder="예: 18,500,000"
+        oninput="formatWithComma(this)"
+        onkeydown="if(event.key==='Enter') confirmMcSnapshot()">
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin:-4px 0 12px;">0 입력 시 해당 월 기록 삭제</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeMcSnapshotModal()">취소</button>
+      <button class="btn btn-primary" onclick="confirmMcSnapshot()">저장</button>
+    </div>
+  </div>
+</div>
+
 <!-- UPDATE PRICE MODAL -->
 <div class="modal-overlay" id="priceModal">
   <div class="modal">
@@ -2104,13 +2123,29 @@ function recordThisMonth() {
   showToast(`✅ ${year}년 ${month}월 실적 기록 완료 (${Math.round(curAsset).toLocaleString('ko-KR')}원)`);
 }
 
-// 특정 월 실제 잔액 수동 입력
+// 특정 월 실제 잔액 수동 입력 — 모달
+let _mcSnapTarget = { year: null, month: null };
+
 function editMcSnapshot(year, month) {
+  _mcSnapTarget = { year, month };
   const existing = (state.monthlySnapshots || []).find(s => s.year === year && s.month === month);
-  const cur = existing ? existing.value.toLocaleString('ko-KR') : '';
-  const input = prompt(`${year}년 ${month}월 실제 잔액을 입력하세요 (원)`, cur);
-  if (input === null) return;
-  const val = parseFloat(input.replace(/,/g, ''));
+  document.getElementById('mcSnapshotLabel').textContent = `${year}년 ${month}월`;
+  const inp = document.getElementById('mcSnapshotInput');
+  inp.value = existing ? existing.value.toLocaleString('ko-KR') : '';
+  document.getElementById('mcSnapshotModal').classList.add('open');
+  setTimeout(() => inp.select(), 60);
+}
+
+function closeMcSnapshotModal() {
+  document.getElementById('mcSnapshotModal').classList.remove('open');
+  _mcSnapTarget = { year: null, month: null };
+}
+
+function confirmMcSnapshot() {
+  const { year, month } = _mcSnapTarget;
+  if (!year) return;
+  const raw = document.getElementById('mcSnapshotInput').value.replace(/,/g, '').trim();
+  const val = parseFloat(raw);
   if (isNaN(val) || val < 0) { showToast('올바른 금액을 입력하세요.'); return; }
   if (!state.monthlySnapshots) state.monthlySnapshots = [];
   const idx = state.monthlySnapshots.findIndex(s => s.year === year && s.month === month);
@@ -2122,7 +2157,13 @@ function editMcSnapshot(year, month) {
   }
   save();
   calcMonthlyCompound();
+  closeMcSnapshotModal();
+  showToast(`✅ ${year}년 ${month}월 실적 저장 완료`);
 }
+
+document.getElementById('mcSnapshotModal').addEventListener('click', function(e) {
+  if (e.target === this) closeMcSnapshotModal();
+});
 
 
 function fmt(n, dec=0) {
