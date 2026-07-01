@@ -2424,7 +2424,7 @@ function renderPortfolio() {
       <td>${fmt(s.avgPrice)}</td>
       <td class="${curCls}" style="cursor:pointer" onclick="openPriceModal(${origIdx})" title="클릭 → 현재가 업데이트">
         ${s.currentPrice ? fmt(s.currentPrice) : '<span style="font-size:11px;text-decoration:underline dotted">미입력</span>'}
-        ${(()=>{ if (!s.prevClose || !s.currentPrice) return ''; const d=(s.currentPrice-s.prevClose)/s.prevClose*100; const dc=d>0?'up':d<0?'dn':'eq'; return `<div class="${dc}" style="font-size:10px;line-height:1.3">${d>0?'+':''}${d.toFixed(2)}%</div>`; })()}
+        ${(()=>{ if (!s.currentPrice || !s.avgPrice) return ''; const diff=s.currentPrice-s.avgPrice; const dp=diff/s.avgPrice*100; const dc=diff>0?'up':diff<0?'dn':'eq'; return `<div class="${dc}" style="font-size:10px;line-height:1.3">${diff>0?'+':''}${Math.round(diff).toLocaleString('ko-KR')} (${dp>0?'+':''}${dp.toFixed(2)}%)</div>`; })()}
       </td>
       <td>${fmt(buyAmt)}</td>
       <td>${fmt(valAmt)}</td>
