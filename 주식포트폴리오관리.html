@@ -3597,11 +3597,6 @@ function renderNewsPortfolioLinks() {
       ? `https://finance.naver.com/item/main.naver?code=${ticker}`
       : `https://search.naver.com/search.naver?where=nexearch&query=${enc}+주가`;
 
-    // KRX KIND 공시 (국내 종목만)
-    const kindBtn = isKrCode(ticker)
-      ? `<button class="btn btn-sm news-link-btn" style="border-color:var(--blue2);color:var(--blue)" onclick="openDartByCode('${ticker}')">KRX</button>`
-      : '';
-
     // 해외 종목 Investing.com
     const investingBtn = !isKrCode(ticker)
       ? `<button class="btn btn-sm news-link-btn" style="border-color:var(--yellow);color:var(--yellow)" onclick="window.open('https://kr.investing.com/search/?q=${encT}','_blank')">Inv.</button>`
@@ -3615,11 +3610,9 @@ function renderNewsPortfolioLinks() {
       <div style="display:flex;flex-wrap:wrap;gap:4px;">
         <button class="btn btn-sm news-link-btn" style="border-color:#e07b39;color:#e07b39"
           onclick="window.open('https://dart.fss.or.kr/dsab007/main.do?autoSearch=N&selectKey=corp&textCrpNm=${enc}','_blank')">📋DART</button>
-        <button class="btn btn-sm news-link-btn"
-          onclick="window.open('https://search.naver.com/search.naver?where=news&query=${enc}','_blank')">📰뉴스</button>
         <button class="btn btn-sm news-link-btn" style="border-color:var(--green);color:var(--green)"
           onclick="window.open('${naverFinUrl}','_blank')">💹네이버</button>
-        ${kindBtn}${investingBtn}
+        ${investingBtn}
       </div>
     </div>`;
   }).join('');
