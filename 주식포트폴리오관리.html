@@ -745,7 +745,7 @@
     </div>
     <div style="display:flex;gap:8px;margin-top:12px;">
       <button class="btn btn-primary" onclick="calcMonthlyCompound()">📊 계산</button>
-      <button class="btn btn-ghost" onclick="['mc_principal','mc_rate','mc_months','mc_add','mc_startDate'].forEach(id=>{document.getElementById(id).value=''}); document.getElementById('mc_result').style.display='none'; state.mcChecks={}; save();">초기화</button>
+      <button class="btn btn-ghost" onclick="['mc_principal','mc_rate','mc_months','mc_add','mc_startDate'].forEach(id=>{document.getElementById(id).value=''}); document.getElementById('mc_result').style.display='none'; state.mcChecks={}; state.mcSettings={}; save();">초기화</button>
     </div>
   </div><!-- /월복리 시뮬레이터 -->
 
@@ -1546,7 +1546,7 @@
 // STATE
 // ============================================================
 const STORAGE_KEY = 'stockbook_v1';
-let state = { portfolio: [], trades: [], journals: [], totalAsset: 0, mcChecks: {}, cashflows: [] };
+let state = { portfolio: [], trades: [], journals: [], totalAsset: 0, mcChecks: {}, cashflows: [], mcSettings: {} };
 let sellTargetIdx = null;
 let priceTargetIdx = null;
 let tradeFilter = 'all';
@@ -1771,7 +1771,7 @@ function save() {
 
 function _applyState(raw) {
   try {
-    if (raw) state = { portfolio:[], trades:[], journals:[], totalAsset:0, mcChecks:{}, cashflows:[], ...JSON.parse(raw) };
+    if (raw) state = { portfolio:[], trades:[], journals:[], totalAsset:0, mcChecks:{}, cashflows:[], mcSettings:{}, ...JSON.parse(raw) };
   } catch(e) {}
 }
 
@@ -1785,6 +1785,14 @@ function _renderAll() {
   updateDatalist('newsStockList');
   renderExsugeum();
   try { renderSummary(); } catch(e) {}
+  // 월복리 시뮬레이터 입력값 복원
+  const mc = state.mcSettings || {};
+  if (mc.principal) { const el = document.getElementById('mc_principal'); if (el) el.value = Number(mc.principal).toLocaleString('ko-KR'); }
+  if (mc.rate)      { const el = document.getElementById('mc_rate');      if (el) el.value = mc.rate; }
+  if (mc.months)    { const el = document.getElementById('mc_months');    if (el) el.value = mc.months; }
+  if (mc.add)       { const el = document.getElementById('mc_add');       if (el) el.value = Number(mc.add).toLocaleString('ko-KR'); }
+  if (mc.startDate) { const el = document.getElementById('mc_startDate'); if (el) el.value = mc.startDate; }
+  if (mc.principal || mc.rate || mc.months) calcMonthlyCompound();
 }
 
 function load() {
@@ -1934,6 +1942,10 @@ function calcMonthlyCompound() {
   const months    = parseInt(getVal('mc_months'))       || 0;
   const add       = parseFloat(getVal('mc_add'))        || 0;
   const startDate = document.getElementById('mc_startDate')?.value || '';
+
+  // 입력값 저장 (앱 재시작 후 복원용)
+  state.mcSettings = { principal: getVal('mc_principal'), rate: getVal('mc_rate'), months: getVal('mc_months'), add: getVal('mc_add'), startDate };
+  save();
 
   if (principal <= 0 || rate <= 0 || months <= 0) {
     document.getElementById('mc_result').style.display = 'none';
@@ -3322,7 +3334,7 @@ function importBackup(e) {
       const ok = window.electronAPI ? await window.electronAPI.showConfirm(msg) : confirm(msg);
       if (!ok) { e.target.value = ''; return; }
 
-      state = { portfolio:[], trades:[], journals:[], totalAsset:0, mcChecks:{}, cashflows:[], ...parsed };
+      state = { portfolio:[], trades:[], journals:[], totalAsset:0, mcChecks:{}, cashflows:[], mcSettings:{}, ...parsed };
       save();
       renderPortfolio();
       renderTrades();
