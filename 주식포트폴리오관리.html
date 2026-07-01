@@ -1168,7 +1168,6 @@
       <datalist id="newsStockList"></datalist>
       <button class="btn btn-primary" onclick="searchNews()">검색</button>
     </div>
-    <div class="quick-links" id="portfolioQuickLinks"></div>
   </div>
 
   <!-- 공시 · 뉴스 링크 그리드 -->
@@ -3579,8 +3578,7 @@ function openUrl(url) { window.open(url, '_blank'); }
 function renderNewsPortfolioLinks() {
   const links = document.getElementById('portfolioNewsLinks');
   const card  = document.getElementById('portfolioNewsCard');
-  const ql    = document.getElementById('portfolioQuickLinks');
-  if (!state.portfolio.length) { card.style.display='none'; ql.innerHTML=''; return; }
+  if (!state.portfolio.length) { card.style.display='none'; return; }
   card.style.display = 'block';
 
   const isKrCode = t => /^\d{6}$/.test((t||'').trim());
@@ -3618,7 +3616,6 @@ function renderNewsPortfolioLinks() {
   }).join('');
 
   links.innerHTML = html;
-  ql.innerHTML = html;
 }
 
 // ============================================================
