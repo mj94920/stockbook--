@@ -6,3 +6,19 @@ signing-key-info.txt
 node_modules/
 *.exe
 *.zip
+ 
+# Android TWA ºôµå ÆÄÀÏ 
+.gradle/ 
+app/ 
+build/ 
+gradle/ 
+gradlew 
+gradlew.bat 
+build.gradle 
+settings.gradle 
+gradle.properties 
+twa-manifest.json 
+manifest-checksum.txt 
+app-release-unsigned-aligned.apk 
+sign_apk.bat 
+store_icon.png 

@@ -661,6 +661,10 @@
     border-bottom: 1px solid var(--glass-border);
     white-space: nowrap;
   }
+  body.light-mode thead th {
+    background: rgba(241, 245, 249, 0.85);
+    color: var(--text2);
+  }
   tbody td {
     padding: 12px 14px;
     border-bottom: 1px solid var(--border-light);
@@ -852,7 +856,7 @@
   /* ── HTS 2-COL LAYOUT ── */
   .hts-layout {
     display: grid;
-    grid-template-columns: 1fr 520px;
+    grid-template-columns: 1fr 600px;
     gap: 24px;
     align-items: start;
   }
@@ -879,13 +883,13 @@
     border-radius: var(--radius) var(--radius) 0 0;
     padding: 8px 10px 0;
     flex-wrap: nowrap;
-    gap: 3px;
+    gap: 2px;
     overflow-x: auto;
     scrollbar-width: none;
   }
   .sub-tabs::-webkit-scrollbar { display: none; }
   .sub-tab-btn {
-    padding: 8px 14px;
+    padding: 8px 8px;
     background: rgba(255,255,255,0.04);
     border: 1px solid var(--border-light);
     border-bottom: none;
@@ -1087,6 +1091,12 @@
     }
     .form-grid, .summary-grid {
       grid-template-columns: 1fr 1fr;
+    }
+    #journalLayout {
+      grid-template-columns: 1fr !important;
+    }
+    #journalLayout > div:last-child .card {
+      position: static !important;
     }
     .sub-tabs {
       position: fixed;
