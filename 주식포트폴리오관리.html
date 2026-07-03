@@ -853,6 +853,13 @@
     margin-top: 24px;
   }
 
+  /* ── 투자일지 2-COL LAYOUT ── */
+  #journalLayout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 16px;
+  }
+
   /* ── HTS 2-COL LAYOUT ── */
   .hts-layout {
     display: grid;
@@ -1093,10 +1100,10 @@
       grid-template-columns: 1fr 1fr;
     }
     #journalLayout {
-      grid-template-columns: 1fr !important;
+      grid-template-columns: 1fr;
     }
     #journalLayout > div:last-child .card {
-      position: static !important;
+      position: static;
     }
     .sub-tabs {
       position: fixed;
@@ -1635,7 +1642,7 @@
 
       <!-- 📓 투자일지 -->
       <div id="stab-journal" class="sub-tab-panel">
-  <div style="display:grid;grid-template-columns:1fr 380px;gap:16px;" id="journalLayout">
+  <div id="journalLayout">
 
   <!-- LEFT: FORM -->
   <div>
