@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
-<title>📈 주식 포트폴리오 관리</title>
+<title>StockBook — 주식 포트폴리오 관리</title>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,12 +19,16 @@
   :root {
     /* ── 다크 테마 (기본) ── */
     --bg: #0b0f19;
-    --bg-gradient: radial-gradient(circle at top right, #111a2e, #0b0f19);
+    --bg-gradient:
+      radial-gradient(ellipse 75% 55% at 12% 18%, rgba(79, 70, 229, 0.25) 0%, transparent 68%),
+      radial-gradient(ellipse 60% 50% at 88% 82%, rgba(59, 130, 246, 0.20) 0%, transparent 65%),
+      radial-gradient(ellipse 45% 40% at 58% 52%, rgba(16, 185, 129, 0.09) 0%, transparent 58%),
+      radial-gradient(circle at top right, #111a2e, #0b0f19);
     --bg2: #111827;
     --bg3: #1f2937;
     --bg4: #374151;
     --border: #1f2937;
-    --border-light: rgba(255, 255, 255, 0.06);
+    --border-light: rgba(255, 255, 255, 0.08);
     --text: #f3f4f6;
     --text2: #9ca3af;
     --text3: #6b7280;
@@ -54,9 +58,11 @@
     --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
     --shadow-btn: 0 4px 14px rgba(79, 70, 229, 0.3);
     
-    --card-bg: rgba(17, 24, 39, 0.7);
-    --glass-bg: rgba(17, 24, 39, 0.45);
-    --glass-blur: blur(16px);
+    --card-bg: rgba(17, 24, 39, 0.48);
+    --glass-bg: rgba(17, 24, 39, 0.32);
+    --glass-blur: blur(20px);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
   body.light-mode {
@@ -95,9 +101,11 @@
     --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
     --shadow-btn: 0 4px 14px rgba(37, 99, 235, 0.18);
     
-    --card-bg: rgba(255, 255, 255, 0.9);
-    --glass-bg: rgba(255, 255, 255, 0.6);
-    --glass-blur: blur(16px);
+    --card-bg: rgba(255, 255, 255, 0.70);
+    --glass-bg: rgba(255, 255, 255, 0.50);
+    --glass-blur: blur(20px);
+    --glass-border: rgba(0, 0, 0, 0.07);
+    --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.90);
   }
 
   * {
@@ -125,10 +133,13 @@
 
   /* ── HEADER ── */
   .header {
-    background: var(--glass-bg);
+    background: linear-gradient(135deg,
+      rgba(79, 70, 229, 0.18) 0%,
+      rgba(59, 130, 246, 0.12) 45%,
+      rgba(17, 24, 39, 0.62) 100%);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    border-bottom: 1px solid var(--border-light);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.20);
     padding: 0 24px;
     display: flex;
     align-items: center;
@@ -137,8 +148,16 @@
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08), 0 1px 0 rgba(99, 102, 241, 0.10);
     transition: background 0.3s, border-color 0.3s;
+  }
+  body.light-mode .header {
+    background: linear-gradient(135deg,
+      rgba(37, 99, 235, 0.09) 0%,
+      rgba(99, 102, 241, 0.06) 50%,
+      rgba(248, 250, 252, 0.90) 100%);
+    border-bottom-color: rgba(37, 99, 235, 0.13);
+    box-shadow: 0 4px 24px rgba(37, 99, 235, 0.07);
   }
   .logo {
     font-size: 20px;
@@ -174,20 +193,22 @@
     justify-content: center;
     width: 36px;
     height: 36px;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255,255,255,0.12);
     border-radius: 10px;
-    background: var(--bg2);
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     color: var(--text2);
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 16px;
   }
   .header-action-btn:hover {
-    background: var(--bg3);
+    background: rgba(255,255,255,0.12);
     color: var(--text);
-    border-color: var(--text3);
+    border-color: rgba(255,255,255,0.22);
     transform: translateY(-1px);
-    box-shadow: var(--shadow-card);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
   }
   .header-action-btn:active {
     transform: translateY(0);
@@ -198,8 +219,10 @@
 
   /* 테마 전환 스위치 */
   .theme-toggle-btn {
-    background: var(--bg2);
-    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.12);
     color: var(--yellow);
     display: inline-flex;
     align-items: center;
@@ -217,7 +240,42 @@
     box-shadow: var(--shadow-card);
   }
   body.light-mode .theme-toggle-btn {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.10);
     color: #4f46e5;
+  }
+  body.light-mode .header-action-btn {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.10);
+  }
+  body.light-mode .header-action-btn:hover {
+    background: rgba(0,0,0,0.08);
+    border-color: rgba(0,0,0,0.18);
+  }
+  body.light-mode .btn-ghost {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.10);
+  }
+  body.light-mode .btn-ghost:hover {
+    background: rgba(0,0,0,0.08);
+    border-color: rgba(0,0,0,0.18);
+  }
+  body.light-mode .form-group input,
+  body.light-mode .form-group select,
+  body.light-mode .form-group textarea {
+    background: rgba(255,255,255,0.80);
+    border-color: rgba(0,0,0,0.12);
+  }
+  body.light-mode .sub-tabs {
+    background: rgba(255,255,255,0.60);
+    border-color: rgba(0,0,0,0.08);
+  }
+  body.light-mode .sub-tab-body {
+    background: rgba(255,255,255,0.50);
+    border-color: rgba(0,0,0,0.08);
+  }
+  body.light-mode .sub-tab-body > .card {
+    background: rgba(255,255,255,0.70);
   }
 
   /* ── TABS ── */
@@ -272,15 +330,16 @@
     background: var(--card-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius);
     padding: 24px;
     margin-bottom: 20px;
-    box-shadow: var(--shadow-card);
+    box-shadow: var(--glass-shadow);
     transition: border-color 0.3s, background-color 0.3s, box-shadow 0.3s;
   }
   .card:hover {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
   .card-title {
     font-size: 16px;
@@ -298,11 +357,11 @@
     background: var(--card-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-sm);
     padding: 16px;
     margin-bottom: 12px;
-    box-shadow: var(--shadow-card);
+    box-shadow: var(--glass-shadow);
     cursor: pointer;
     transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
   }
@@ -349,11 +408,13 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     background: var(--card-bg);
-    border: 1px solid var(--border-light);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius);
     margin-bottom: 16px;
     overflow: hidden;
-    box-shadow: var(--shadow-card);
+    box-shadow: var(--glass-shadow);
   }
   .hts-bar-cell {
     padding: 14px 18px;
@@ -494,8 +555,10 @@
     letter-spacing: -0.01em;
   }
   .form-group input, .form-group select, .form-group textarea {
-    background: var(--bg2);
-    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.10);
     border-radius: var(--radius-sm);
     color: var(--text);
     padding: 10px 14px;
@@ -504,7 +567,7 @@
     outline: none;
     transition: all 0.2s;
     width: 100%;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
   }
   .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
     border-color: var(--accent);
@@ -555,14 +618,16 @@
     box-shadow: 0 4px 14px rgba(244, 63, 94, 0.3);
   }
   .btn-ghost {
-    background: var(--bg2);
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     color: var(--text2);
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255,255,255,0.10);
   }
   .btn-ghost:hover {
     color: var(--text);
-    background: var(--bg3);
-    border-color: var(--text3);
+    background: rgba(255,255,255,0.10);
+    border-color: rgba(255,255,255,0.20);
   }
   .btn-sm {
     padding: 6px 14px;
@@ -584,14 +649,16 @@
     text-align: left;
   }
   thead th {
-    background: var(--bg3);
+    background: rgba(31, 41, 55, 0.60);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     padding: 12px 14px;
     color: var(--text2);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border-bottom: 2px solid var(--border);
+    border-bottom: 1px solid var(--glass-border);
     white-space: nowrap;
   }
   tbody td {
@@ -724,8 +791,10 @@
   .portfolio-table td.col-action {
     position: sticky;
     right: 0;
-    background: var(--bg2);
-    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: -4px 0 16px rgba(0, 0, 0, 0.25);
     z-index: 1;
   }
   body.light-mode .portfolio-table th.col-action,
@@ -752,13 +821,15 @@
     opacity: 1;
   }
   .modal {
-    background: var(--bg2);
-    border: 1px solid var(--border-light);
+    background: rgba(17, 24, 39, 0.55);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius);
     padding: 28px;
     width: 90%;
     max-width: 480px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.10);
     transform: scale(0.95);
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -800,50 +871,92 @@
   /* 우측 서브탭 패널 */
   .sub-tabs {
     display: flex;
-    background: var(--bg2);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 8px 10px 0;
+    flex-wrap: nowrap;
+    gap: 3px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .sub-tabs::-webkit-scrollbar { display: none; }
+  .sub-tab-btn {
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.04);
     border: 1px solid var(--border-light);
     border-bottom: none;
-    border-radius: var(--radius) var(--radius) 0 0;
-    padding: 6px 8px 0;
-    flex-wrap: wrap;
-    gap: 2px;
-  }
-  .sub-tab-btn {
-    padding: 10px 14px;
-    background: none;
-    border: none;
-    border-bottom: 2.5px solid transparent;
-    border-radius: 6px 6px 0 0;
-    color: var(--text2);
+    border-radius: 7px 7px 0 0;
+    color: var(--text3);
     cursor: pointer;
     font-size: 13px;
     font-weight: 500;
     font-family: inherit;
-    transition: all 0.2s;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s, transform 0.08s;
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
+    position: relative;
+    margin-bottom: -1px;
+    user-select: none;
   }
   .sub-tab-btn:hover {
-    color: var(--text);
-    background: var(--bg3);
+    color: var(--text2);
+    background: rgba(255,255,255,0.08);
+  }
+  .sub-tab-btn:active {
+    transform: scale(0.96);
+    background: rgba(255,255,255,0.05);
   }
   .sub-tab-btn.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
+    color: var(--text);
+    background: var(--card-bg);
+    border-color: var(--border-light);
     font-weight: 600;
-    background: var(--bg3);
+    z-index: 1;
+    box-shadow: inset 0 2px 0 var(--accent);
+  }
+  body.light-mode .sub-tab-btn {
+    background: rgba(0,0,0,0.03);
+    border-color: rgba(0,0,0,0.08);
+  }
+  body.light-mode .sub-tab-btn:hover {
+    background: rgba(0,0,0,0.06);
+  }
+  body.light-mode .sub-tab-btn.active {
+    background: #ffffff;
+    border-color: rgba(0,0,0,0.1);
+    box-shadow: inset 0 2px 0 var(--accent);
+  }
+  .tab-icon {
+    display: inline-flex;
+    align-items: center;
+    opacity: 0.75;
+    transition: opacity 0.15s;
+  }
+  .sub-tab-btn.active .tab-icon,
+  .sub-tab-btn:hover .tab-icon {
+    opacity: 1;
+  }
+  .sub-tab-btn.active .tab-icon {
+    color: var(--accent);
   }
   .sub-tab-body {
-    background: var(--card-bg);
-    border: 1px solid var(--border-light);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
     border-top: none;
     border-radius: 0 0 var(--radius) var(--radius);
     padding: 20px;
   }
   .sub-tab-body > .card {
     margin-bottom: 16px;
-    background: var(--bg2);
+    background: rgba(255,255,255,0.04);
     box-shadow: none;
   }
   .sub-tab-body > .card:last-child {
@@ -861,6 +974,44 @@
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
   }
+
+  /* 배경 오브 서서히 이동 애니메이션 */
+  @keyframes orbFloat1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(3%, 4%) scale(1.05); }
+    66% { transform: translate(-2%, -3%) scale(0.97); }
+  }
+  @keyframes orbFloat2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    40% { transform: translate(-4%, 3%) scale(1.04); }
+    70% { transform: translate(2%, -2%) scale(0.96); }
+  }
+  body:not(.light-mode)::before,
+  body:not(.light-mode)::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(80px);
+  }
+  body:not(.light-mode)::before {
+    width: 600px;
+    height: 500px;
+    top: -100px;
+    left: -100px;
+    background: radial-gradient(ellipse, rgba(79, 70, 229, 0.20) 0%, transparent 70%);
+    animation: orbFloat1 18s ease-in-out infinite;
+  }
+  body:not(.light-mode)::after {
+    width: 500px;
+    height: 450px;
+    bottom: -80px;
+    right: -80px;
+    background: radial-gradient(ellipse, rgba(59, 130, 246, 0.16) 0%, transparent 70%);
+    animation: orbFloat2 22s ease-in-out infinite;
+  }
+  /* content는 z-index: auto, 오브는 z-index: 0이므로 자동으로 위에 렌더링됨 */
 
   /* 시세 변동 깜빡임 효과 (HTS 스타일) */
   @keyframes flash-up {
@@ -920,10 +1071,10 @@
       z-index: 300;
       border-radius: 0;
       border: none;
-      border-bottom: 1px solid var(--border-light);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border-bottom: 1px solid var(--glass-border);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
       padding: 6px 16px 0;
-      background: var(--bg2);
+      background: var(--glass-bg);
     }
     .hts-layout {
       padding-top: 52px;
@@ -945,9 +1096,9 @@
       z-index: 300;
       border-radius: 0;
       border: none;
-      border-bottom: 1px solid var(--border-light);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      background: var(--bg2);
+      border-bottom: 1px solid var(--glass-border);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.20);
+      background: var(--glass-bg);
       padding: 6px 8px 0;
       height: 48px;
       overflow-x: auto;
@@ -1193,13 +1344,15 @@
   <div class="logo"><img src="./logo.svg" alt="StockBook 로고"> <span>StockBook</span></div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;">
     <button onclick="toggleTheme()" title="테마 전환 (다크/라이트)" class="theme-toggle-btn" id="themeToggleBtn">
-      <span>🌙</span>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
     <button onclick="exportBackup()" title="데이터를 JSON 파일로 저장" class="header-action-btn">
-      <span>💾</span><span class="header-btn-text">백업</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span class="header-btn-text">백업</span>
     </button>
     <label title="JSON 파일로 복원" class="header-action-btn" style="cursor:pointer;">
-      <span>📂</span><span class="header-btn-text">복원</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span class="header-btn-text">복원</span>
       <input type="file" accept=".json" onchange="importBackup(event)" style="display:none;">
     </label>
     <div style="font-size:13px;color:var(--text3);white-space:nowrap;" id="headerDate" class="header-date"></div>
@@ -1217,7 +1370,7 @@
   <!-- TOTAL ASSET SETTING -->
   <div class="card" style="padding:12px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <span style="font-size:14px;font-weight:700;color:var(--text2);white-space:nowrap;">💼 총 자산</span>
+      <span style="font-size:14px;font-weight:700;color:var(--text2);white-space:nowrap;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> 총 자산</span>
       <input type="text" inputmode="decimal" id="totalAssetInput" placeholder="예: 100,000,000 (1억)" min="0" step="any"
         style="flex:1;min-width:180px;padding:7px 12px;background:var(--bg3);border:1px solid var(--accent);border-radius:6px;color:var(--text);font-size:14px;outline:none;"
         oninput="formatWithComma(this);previewAssetRatio()" onkeydown="if(event.key==='Enter')saveTotalAsset()">
@@ -1243,9 +1396,9 @@
       <div class="section-title">보유 종목</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <input type="text" placeholder="종목 검색..." id="stockSearch" oninput="renderPortfolio()" style="padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;width:160px;outline:none;">
-        <button class="btn btn-ghost btn-sm" onclick="fetchAllPrices()" title="티커가 등록된 종목의 시세를 야후 파이낸스에서 자동 조회">🔄 시세 새로고침</button>
-        <button class="btn btn-ghost btn-sm" onclick="openBulkPriceModal()" title="모든 종목 현재가 일괄 입력">💱 현재가 업데이트</button>
-        <button class="btn btn-ghost btn-sm" onclick="openBulkEditModal()" title="모든 종목 기본 정보 일괄 수정">✏️ 전체 편집</button>
+        <button class="btn btn-ghost btn-sm" onclick="fetchAllPrices()" title="티커가 등록된 종목의 시세를 야후 파이낸스에서 자동 조회"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> 시세 새로고침</button>
+        <button class="btn btn-ghost btn-sm" onclick="openBulkPriceModal()" title="모든 종목 현재가 일괄 입력"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg> 현재가 업데이트</button>
+        <button class="btn btn-ghost btn-sm" onclick="openBulkEditModal()" title="모든 종목 기본 정보 일괄 수정"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 전체 편집</button>
       </div>
     </div>
     <div class="table-wrap" style="overflow-x:auto;">
@@ -1275,7 +1428,7 @@
 
   <!-- ── 월복리 시뮬레이터 (항상 표시) ── -->
   <div class="card" style="margin-top:12px;">
-    <div class="card-title">📈 월복리 시뮬레이터</div>
+    <div class="card-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> 월복리 시뮬레이터</div>
     <div style="font-size:13px;color:var(--text3);margin-bottom:14px;">월 수익률 복리로 투자 기간 후 예상 금액을 계산합니다.</div>
     <div class="form-grid">
       <div class="form-group"><label>초기 원금 (원)</label><input type="text" inputmode="decimal" id="mc_principal" placeholder="10,000,000" oninput="formatWithComma(this);calcMonthlyCompound()"></div>
@@ -1286,7 +1439,7 @@
     </div>
     <div id="mc_result" style="display:none;margin-top:4px;">
       <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px;">
-        <div style="font-size:13px;color:var(--text3);margin-bottom:10px;font-weight:600;">📊 계산 결과</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:10px;font-weight:600;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> 계산 결과</div>
         <table style="width:100%;border-collapse:collapse;font-size:14px;">
           <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 0;color:var(--text2)">최종 금액</td><td id="mc_final" style="text-align:right;font-weight:700;font-size:17px;color:var(--green)"></td></tr>
           <tr><td style="padding:6px 0;color:var(--text2)">총 납입 원금</td><td id="mc_totalIn" style="text-align:right;color:var(--text2)"></td></tr>
@@ -1312,8 +1465,8 @@
       </div>
     </div>
     <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
-      <button class="btn btn-primary" onclick="calcMonthlyCompound()">📊 계산</button>
-      <button class="btn btn-ghost" id="mc_record_btn" onclick="recordThisMonth()" style="display:none">📌 이번 달 실적 기록</button>
+      <button class="btn btn-primary" onclick="calcMonthlyCompound()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="10" y2="11"/><line x1="14" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="10" y2="15"/><line x1="14" y1="15" x2="16" y2="15"/><line x1="8" y1="19" x2="16" y2="19"/></svg> 계산</button>
+      <button class="btn btn-ghost" id="mc_record_btn" onclick="recordThisMonth()" style="display:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg> 이번 달 실적 기록</button>
       <button class="btn btn-ghost" onclick="['mc_principal','mc_rate','mc_months','mc_add','mc_startDate'].forEach(id=>{document.getElementById(id).value=''}); document.getElementById('mc_result').style.display='none'; state.mcChecks={}; state.mcSettings={}; state.monthlySnapshots=[]; save();">초기화</button>
     </div>
   </div><!-- /월복리 시뮬레이터 -->
@@ -1323,23 +1476,23 @@
   <!-- ── RIGHT: 서브탭 패널 ── -->
   <div class="hts-right">
     <div class="sub-tabs">
-      <button class="sub-tab-btn balance-tab" data-tab="balance" onclick="switchSubTab('balance')"><span class="tab-icon">💼</span><span class="tab-text">잔고</span></button>
-      <button class="sub-tab-btn active" data-tab="add" onclick="switchSubTab('add')"><span class="tab-icon">➕</span><span class="tab-text">매수등록</span></button>
-      <button class="sub-tab-btn" data-tab="journal" onclick="switchSubTab('journal')"><span class="tab-icon">📓</span><span class="tab-text">투자일지</span></button>
-      <button class="sub-tab-btn" data-tab="trades" onclick="switchSubTab('trades')"><span class="tab-icon">📋</span><span class="tab-text">거래기록</span></button>
-      <button class="sub-tab-btn" data-tab="cash" onclick="switchSubTab('cash')"><span class="tab-icon">💰</span><span class="tab-text">예수금</span></button>
-      <button class="sub-tab-btn" data-tab="calc" onclick="switchSubTab('calc')"><span class="tab-icon">💧</span><span class="tab-text">물타기</span></button>
-      <button class="sub-tab-btn" data-tab="news" onclick="switchSubTab('news')"><span class="tab-icon">📡</span><span class="tab-text">뉴스</span></button>
+      <button class="sub-tab-btn balance-tab" data-tab="balance" onclick="switchSubTab('balance')"><span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></span><span class="tab-text">잔고</span></button>
+      <button class="sub-tab-btn active" data-tab="add" onclick="switchSubTab('add')"><span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></span><span class="tab-text">매수등록</span></button>
+      <button class="sub-tab-btn" data-tab="journal" onclick="switchSubTab('journal')"><span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="tab-text">투자일지</span></button>
+      <button class="sub-tab-btn" data-tab="trades" onclick="switchSubTab('trades')"><span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span><span class="tab-text">거래기록</span></button>
+      <button class="sub-tab-btn" data-tab="cash" onclick="switchSubTab('cash')"><span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="tab-text">예수금</span></button>
+      <button class="sub-tab-btn" data-tab="calc" onclick="switchSubTab('calc')"><span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="10" y2="11"/><line x1="14" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="10" y2="15"/><line x1="14" y1="15" x2="16" y2="15"/><line x1="8" y1="19" x2="10" y2="19"/><line x1="14" y1="19" x2="16" y2="19"/></svg></span><span class="tab-text">물타기</span></button>
+      <button class="sub-tab-btn" data-tab="news" onclick="switchSubTab('news')"><span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0-2 2zm0 0a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6z"/></svg></span><span class="tab-text">뉴스</span></button>
     </div>
     <div class="sub-tab-body">
 
       <!-- 💼 잔고 -->
       <div id="stab-balance" class="sub-tab-panel">
   <div class="card">
-    <div class="card-title">💼 잔고 요약</div>
+    <div class="card-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> 잔고 요약</div>
     <div class="hts-bar" style="margin-bottom:0;">
       <div class="hts-bar-cell">
-        <div class="hts-bar-label">예수금 <span onclick="openCashManualModal()" style="cursor:pointer;" title="예수금 직접 입력">✏️</span></div>
+        <div class="hts-bar-label">예수금 <span onclick="openCashManualModal()" style="cursor:pointer;" title="예수금 직접 입력"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span></div>
         <div class="hts-bar-val" id="balCash">-</div>
       </div>
       <div class="hts-bar-cell">
@@ -1357,7 +1510,7 @@
     </div>
   </div>
   <div class="card">
-    <div class="card-title">🍩 자산 구성</div>
+    <div class="card-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg> 자산 구성</div>
     <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;">
       <div class="donut-wrap">
         <div class="donut-chart" id="balDonut"></div>
@@ -1375,7 +1528,7 @@
       <div id="stab-add" class="sub-tab-panel active">
   <!-- ADD STOCK FORM -->
   <div class="card">
-    <div class="card-title">➕ 매수 / 추가 매수</div>
+    <div class="card-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M5 12h14"/><path d="M12 5v14"/></svg> 매수 / 추가 매수</div>
     <div class="form-grid">
       <div class="form-group">
         <label>종목명 *</label>
@@ -1386,29 +1539,29 @@
         <label>섹터</label>
         <select id="f_sector">
           <option value="">선택</option>
-          <optgroup label="🔬 테크·첨단">
+          <optgroup label="테크·첨단">
             <option>반도체</option><option>IT/플랫폼</option><option>AI/소프트웨어</option>
             <option>로봇</option><option>우주항공</option><option>보안/사이버</option>
           </optgroup>
-          <optgroup label="⚡ 에너지·소재">
+          <optgroup label="에너지·소재">
             <option>2차전지</option><option>원자력</option><option>에너지</option>
             <option>철강/소재</option><option>화학</option>
           </optgroup>
-          <optgroup label="🏭 산업·방산">
+          <optgroup label="산업·방산">
             <option>방산</option><option>조선</option><option>자동차</option>
             <option>기계/장비</option>
           </optgroup>
-          <optgroup label="💊 바이오·헬스">
+          <optgroup label="바이오·헬스">
             <option>바이오/헬스</option><option>의료기기</option><option>제약</option>
           </optgroup>
-          <optgroup label="💰 금융·부동산">
+          <optgroup label="금융·부동산">
             <option>금융</option><option>보험</option><option>부동산/건설</option>
           </optgroup>
-          <optgroup label="🛍 소비·서비스">
+          <optgroup label="소비·서비스">
             <option>소비재</option><option>유통/물류</option><option>식품/음료</option>
             <option>통신</option><option>게임/엔터</option><option>미디어</option>
           </optgroup>
-          <optgroup label="📦 기타">
+          <optgroup label="기타">
             <option>ETF/리츠</option><option>해외주식</option><option>기타</option>
           </optgroup>
         </select>
@@ -1425,16 +1578,16 @@
         <label>포트폴리오 위치</label>
         <select id="f_pos">
           <option value="">선택</option>
-          <option value="top">🔴 제일 위 (고위험·고수익)</option>
-          <option value="mid">🔵 중간 (성장주)</option>
-          <option value="bot">🟢 제일 아래 (배당·안정)</option>
+          <option value="top"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#ef4444;margin-right:4px;"></span>제일 위 (고위험·고수익)</option>
+          <option value="mid"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#3b82f6;margin-right:4px;"></span>중간 (성장주)</option>
+          <option value="bot"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#10b981;margin-right:4px;"></span>제일 아래 (배당·안정)</option>
         </select>
       </div>
       <div class="form-group">
         <label>현재 주가 (손익 계산용) <span id="f_current_status" style="font-size:11px;color:var(--text3);font-weight:400;"></span></label>
         <div style="display:flex;gap:6px;align-items:center;">
           <input type="text" inputmode="decimal" id="f_current" placeholder="80,000" oninput="formatWithComma(this)" style="flex:1;min-width:0;">
-          <button type="button" id="f_current_fetch_btn" onclick="fetchCurrentForForm()" style="display:none;padding:6px 10px;background:var(--bg3);border:1.5px solid var(--border);border-radius:6px;cursor:pointer;color:var(--text2);font-size:13px;white-space:nowrap;font-family:inherit;" title="현재가 자동 조회">🔄 조회</button>
+          <button type="button" id="f_current_fetch_btn" onclick="fetchCurrentForForm()" style="display:none;padding:6px 10px;background:var(--bg3);border:1.5px solid var(--border);border-radius:6px;cursor:pointer;color:var(--text2);font-size:13px;white-space:nowrap;font-family:inherit;" title="현재가 자동 조회"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> 조회</button>
         </div>
       </div>
       <div class="form-group">
@@ -1444,27 +1597,27 @@
       <div class="form-group">
         <label>매매 구분</label>
         <select id="f_tradeType">
-          <option value="cash">💵 현금매매</option>
-          <option value="credit">🏦 신용매매</option>
+          <option value="cash">현금매매</option>
+          <option value="credit">신용매매</option>
         </select>
       </div>
     </div>
 
     <!-- 목표가/손절가 -->
     <div style="border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-top:4px;background:var(--bg3);">
-      <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;">📌 목표가 · 손절가 설정 (선택)</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> 목표가 · 손절가 설정 (선택)</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <div class="form-group"><label style="color:var(--green);font-size:12px;">🎯 목표가 1단계</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="f_target1" placeholder="가격" oninput="formatWithComma(this);syncPP('f_target1','f_target1_p',getNum('f_price'))" style="flex:1;min-width:0;"><input type="number" id="f_target1_p" placeholder="%" step="0.1" oninput="syncPC('f_target1_p','f_target1',getNum('f_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
-        <div class="form-group"><label style="color:var(--green);font-size:12px;">🎯 목표가 2단계</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="f_target2" placeholder="가격" oninput="formatWithComma(this);syncPP('f_target2','f_target2_p',getNum('f_price'))" style="flex:1;min-width:0;"><input type="number" id="f_target2_p" placeholder="%" step="0.1" oninput="syncPC('f_target2_p','f_target2',getNum('f_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
-        <div class="form-group"><label style="color:var(--green);font-size:12px;">🎯 목표가 3단계</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="f_target3" placeholder="가격" oninput="formatWithComma(this);syncPP('f_target3','f_target3_p',getNum('f_price'))" style="flex:1;min-width:0;"><input type="number" id="f_target3_p" placeholder="%" step="0.1" oninput="syncPC('f_target3_p','f_target3',getNum('f_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
-        <div class="form-group"><label style="color:var(--red);font-size:12px;">✂️ 손절가</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="f_stop1" placeholder="가격" oninput="formatWithComma(this);syncPP('f_stop1','f_stop1_p',getNum('f_price'))" style="flex:1;min-width:0;"><input type="number" id="f_stop1_p" placeholder="%" step="0.1" oninput="syncPC('f_stop1_p','f_stop1',getNum('f_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
+        <div class="form-group"><label style="color:var(--green);font-size:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 목표가 1단계</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="f_target1" placeholder="가격" oninput="formatWithComma(this);syncPP('f_target1','f_target1_p',getNum('f_price'))" style="flex:1;min-width:0;"><input type="number" id="f_target1_p" placeholder="%" step="0.1" oninput="syncPC('f_target1_p','f_target1',getNum('f_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
+        <div class="form-group"><label style="color:var(--green);font-size:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 목표가 2단계</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="f_target2" placeholder="가격" oninput="formatWithComma(this);syncPP('f_target2','f_target2_p',getNum('f_price'))" style="flex:1;min-width:0;"><input type="number" id="f_target2_p" placeholder="%" step="0.1" oninput="syncPC('f_target2_p','f_target2',getNum('f_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
+        <div class="form-group"><label style="color:var(--green);font-size:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 목표가 3단계</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="f_target3" placeholder="가격" oninput="formatWithComma(this);syncPP('f_target3','f_target3_p',getNum('f_price'))" style="flex:1;min-width:0;"><input type="number" id="f_target3_p" placeholder="%" step="0.1" oninput="syncPC('f_target3_p','f_target3',getNum('f_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
+        <div class="form-group"><label style="color:var(--red);font-size:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> 손절가</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="f_stop1" placeholder="가격" oninput="formatWithComma(this);syncPP('f_stop1','f_stop1_p',getNum('f_price'))" style="flex:1;min-width:0;"><input type="number" id="f_stop1_p" placeholder="%" step="0.1" oninput="syncPC('f_stop1_p','f_stop1',getNum('f_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
       </div>
     </div>
 
     <div class="calc-preview" id="calcPreview" style="display:none"></div>
 
     <div class="form-actions">
-      <button class="btn btn-primary" onclick="addStock()">✅ 매수 등록</button>
+      <button class="btn btn-primary" onclick="addStock()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 매수 등록</button>
       <button class="btn btn-ghost" onclick="clearStockForm()">초기화</button>
     </div>
   </div>
@@ -1477,27 +1630,27 @@
   <!-- LEFT: FORM -->
   <div>
   <div class="card">
-    <div class="card-title" id="journalFormTitle">✏️ 새 투자 일지 작성</div>
+    <div class="card-title" id="journalFormTitle"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> 새 투자 일지 작성</div>
 
     <!-- 기본 정보 -->
     <div class="journal-section">
-      <h3>📌 기본 정보</h3>
+      <h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> 기본 정보</h3>
       <div class="form-grid">
         <div class="form-group">
-          <label>📅 매수일 *</label>
+          <label><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> 매수일 *</label>
           <input type="date" id="j_buyDate" oninput="calcJPeriod()">
         </div>
         <div class="form-group" style="grid-column:1/-1;">
-          <label>📅 추가 매수 내역</label>
+          <label><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> 추가 매수 내역</label>
           <div id="j_adds_list" style="display:flex;flex-direction:column;gap:5px;"></div>
           <button type="button" onclick="addJournalAddRow()" class="btn btn-ghost btn-sm" style="margin-top:5px;font-size:12px;">＋ 추매 행 추가</button>
         </div>
         <div class="form-group">
-          <label>📅 매도일</label>
+          <label><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> 매도일</label>
           <input type="date" id="j_sellDate" oninput="calcJPeriod()">
         </div>
         <div class="form-group" id="j_period_row" style="display:none;">
-          <label style="color:var(--text3);font-size:12px;">⏱ 총 투자기간 (매수일~매도일)</label>
+          <label style="color:var(--text3);font-size:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 총 투자기간 (매수일~매도일)</label>
           <div id="j_period_display" style="font-size:14px;font-weight:700;color:var(--accent);padding:6px 0;"></div>
         </div>
         <div class="form-group">
@@ -1516,8 +1669,8 @@
         <div class="form-group">
           <label>매매 구분</label>
           <select id="j_tradeType">
-            <option value="cash">💵 현금매매</option>
-            <option value="credit">🏦 신용매매</option>
+            <option value="cash">현금매매</option>
+            <option value="credit">신용매매</option>
           </select>
         </div>
         <div class="form-group">
@@ -1539,26 +1692,26 @@
       </div>
       <!-- 목표가/손절가 -->
       <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px;">
-        <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:8px;">📌 목표가 · 손절가 (선택)</div>
+        <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> 목표가 · 손절가 (선택)</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <div class="form-group"><label style="color:var(--green);font-size:12px;">🎯 목표가 1단계</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="j_target1" placeholder="가격" oninput="formatWithComma(this);syncPP('j_target1','j_target1_p',getNum('j_price'))" style="flex:1;min-width:0;"><input type="number" id="j_target1_p" placeholder="%" step="0.1" oninput="syncPC('j_target1_p','j_target1',getNum('j_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
-          <div class="form-group"><label style="color:var(--green);font-size:12px;">🎯 목표가 2단계</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="j_target2" placeholder="가격" oninput="formatWithComma(this);syncPP('j_target2','j_target2_p',getNum('j_price'))" style="flex:1;min-width:0;"><input type="number" id="j_target2_p" placeholder="%" step="0.1" oninput="syncPC('j_target2_p','j_target2',getNum('j_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
-          <div class="form-group"><label style="color:var(--green);font-size:12px;">🎯 목표가 3단계</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="j_target3" placeholder="가격" oninput="formatWithComma(this);syncPP('j_target3','j_target3_p',getNum('j_price'))" style="flex:1;min-width:0;"><input type="number" id="j_target3_p" placeholder="%" step="0.1" oninput="syncPC('j_target3_p','j_target3',getNum('j_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
-          <div class="form-group"><label style="color:var(--red);font-size:12px;">✂️ 손절가</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="j_stop1" placeholder="가격" oninput="formatWithComma(this);syncPP('j_stop1','j_stop1_p',getNum('j_price'))" style="flex:1;min-width:0;"><input type="number" id="j_stop1_p" placeholder="%" step="0.1" oninput="syncPC('j_stop1_p','j_stop1',getNum('j_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
+          <div class="form-group"><label style="color:var(--green);font-size:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 목표가 1단계</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="j_target1" placeholder="가격" oninput="formatWithComma(this);syncPP('j_target1','j_target1_p',getNum('j_price'))" style="flex:1;min-width:0;"><input type="number" id="j_target1_p" placeholder="%" step="0.1" oninput="syncPC('j_target1_p','j_target1',getNum('j_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
+          <div class="form-group"><label style="color:var(--green);font-size:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 목표가 2단계</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="j_target2" placeholder="가격" oninput="formatWithComma(this);syncPP('j_target2','j_target2_p',getNum('j_price'))" style="flex:1;min-width:0;"><input type="number" id="j_target2_p" placeholder="%" step="0.1" oninput="syncPC('j_target2_p','j_target2',getNum('j_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
+          <div class="form-group"><label style="color:var(--green);font-size:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 목표가 3단계</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="j_target3" placeholder="가격" oninput="formatWithComma(this);syncPP('j_target3','j_target3_p',getNum('j_price'))" style="flex:1;min-width:0;"><input type="number" id="j_target3_p" placeholder="%" step="0.1" oninput="syncPC('j_target3_p','j_target3',getNum('j_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
+          <div class="form-group"><label style="color:var(--red);font-size:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> 손절가</label><div style="display:flex;gap:4px;"><input type="text" inputmode="decimal" id="j_stop1" placeholder="가격" oninput="formatWithComma(this);syncPP('j_stop1','j_stop1_p',getNum('j_price'))" style="flex:1;min-width:0;"><input type="number" id="j_stop1_p" placeholder="%" step="0.1" oninput="syncPC('j_stop1_p','j_stop1',getNum('j_price'))" style="width:54px;" title="% 입력 → 가격 자동 계산"></div></div>
         </div>
       </div>
     </div>
 
     <!-- 왜 샀어? -->
     <div class="journal-section" id="j_buySection">
-      <h3>💚 왜 샀어?</h3>
+      <h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> 왜 샀어?</h3>
       <div class="checkbox-group">
         <label class="checkbox-item"><input type="checkbox" name="buyReason" value="톱다운"> 톱다운</label>
         <label class="checkbox-item"><input type="checkbox" name="buyReason" value="바텀업"> 바텀업</label>
-        <label class="checkbox-item"><input type="checkbox" name="buyReason" value="성장 기울기 (멀티플 상승)"> 성장 기울기 📈</label>
+        <label class="checkbox-item"><input type="checkbox" name="buyReason" value="성장 기울기 (멀티플 상승)"> 성장 기울기 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></label>
         <label class="checkbox-item"><input type="checkbox" name="buyReason" value="저평가"> 저평가</label>
         <label class="checkbox-item"><input type="checkbox" name="buyReason" value="시장 에너지 몰림"> 시장 에너지 몰림</label>
-        <label class="checkbox-item"><input type="checkbox" name="buyReason" value="이게 주도 섹터야"> 이게 주도 섹터야 🔥</label>
+        <label class="checkbox-item"><input type="checkbox" name="buyReason" value="이게 주도 섹터야"> 이게 주도 섹터야 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></label>
         <label class="checkbox-item"><input type="checkbox" name="buyReason" value="가족들이 다 찬성해"> 가족들이 다 찬성해</label>
         <label class="checkbox-item"><input type="checkbox" name="buyReason" value="앞으로 모멘텀 오면 터져"> 앞으로 모멘텀 터져</label>
         <label class="checkbox-item"><input type="checkbox" name="buyReason" value="기타"> 기타</label>
@@ -1571,20 +1724,20 @@
 
     <!-- 포트폴리오 위치 -->
     <div class="journal-section">
-      <h3>📊 내 포트폴리오에서 위치는?</h3>
+      <h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> 내 포트폴리오에서 위치는?</h3>
       <div class="checkbox-group">
-        <label class="checkbox-item"><input type="radio" name="j_pos" value="top"> 🔴 제일 위 (고위험·고수익·빠른 상승)</label>
-        <label class="checkbox-item"><input type="radio" name="j_pos" value="mid"> 🔵 중간 (성장주·수익 노림)</label>
-        <label class="checkbox-item"><input type="radio" name="j_pos" value="bot"> 🟢 제일 아래 (배당주·안정형)</label>
+        <label class="checkbox-item"><input type="radio" name="j_pos" value="top"> <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#ef4444;margin-right:4px;"></span>제일 위 (고위험·고수익·빠른 상승)</label>
+        <label class="checkbox-item"><input type="radio" name="j_pos" value="mid"> <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#3b82f6;margin-right:4px;"></span>중간 (성장주·수익 노림)</label>
+        <label class="checkbox-item"><input type="radio" name="j_pos" value="bot"> <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#10b981;margin-right:4px;"></span>제일 아래 (배당주·안정형)</label>
       </div>
     </div>
 
     <!-- 왜 팔았어? -->
     <div class="journal-section" id="j_sellSection" style="display:none">
-      <h3>🔴 왜 팔았어?</h3>
+      <h3><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:2px;"></span> 왜 팔았어?</h3>
       <div class="checkbox-group">
-        <label class="checkbox-item"><input type="checkbox" name="sellReason" value="손절 (10% 빠짐)"> 손절 (10% 빠짐) ✂️</label>
-        <label class="checkbox-item"><input type="checkbox" name="sellReason" value="고점 확인 어깨 도달"> 고점·어깨 도달 📉</label>
+        <label class="checkbox-item"><input type="checkbox" name="sellReason" value="손절 (10% 빠짐)"> 손절 (10% 빠짐) <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></label>
+        <label class="checkbox-item"><input type="checkbox" name="sellReason" value="고점 확인 어깨 도달"> 고점·어깨 도달 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg></label>
         <label class="checkbox-item"><input type="checkbox" name="sellReason" value="포트폴리오/섹터 교체"> 포트폴리오·섹터 교체</label>
         <label class="checkbox-item"><input type="checkbox" name="sellReason" value="성장 기울기 꺾이는 중"> 성장 기울기 꺾임</label>
         <label class="checkbox-item"><input type="checkbox" name="sellReason" value="시장 에너지 이동"> 시장 에너지 이동</label>
@@ -1598,7 +1751,7 @@
 
     <!-- 수익률 & 멘털 -->
     <div class="journal-section">
-      <h3>💯 결과 & 멘털 체크</h3>
+      <h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg> 결과 & 멘털 체크</h3>
       <div class="form-grid" style="margin-bottom:12px;">
         <div class="form-group">
           <label>실제 수익률 (%)</label>
@@ -1610,23 +1763,23 @@
         </div>
       </div>
       <div class="checkbox-group">
-        <label class="checkbox-item"><input type="checkbox" name="mental" value="원칙 지켰어"> ✅ 원칙 지켰어</label>
-        <label class="checkbox-item"><input type="checkbox" name="mental" value="아이고 흔들렸네"> 😅 아이고 흔들렸네</label>
-        <label class="checkbox-item"><input type="checkbox" name="mental" value="확신이 생겨 더 담고 싶다"> 🚀 확신이 생겨 더 담고 싶다</label>
-        <label class="checkbox-item"><input type="checkbox" name="mental" value="물타기 하고 싶었다"> 💧 물타기 하고 싶었다</label>
+        <label class="checkbox-item"><input type="checkbox" name="mental" value="원칙 지켰어"> <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 원칙 지켰어</label>
+        <label class="checkbox-item"><input type="checkbox" name="mental" value="아이고 흔들렸네"> <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg> 아이고 흔들렸네</label>
+        <label class="checkbox-item"><input type="checkbox" name="mental" value="확신이 생겨 더 담고 싶다"> <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><polyline points="16 12 12 8 8 12"/><line x1="12" y1="16" x2="12" y2="8"/></svg> 확신이 생겨 더 담고 싶다</label>
+        <label class="checkbox-item"><input type="checkbox" name="mental" value="물타기 하고 싶었다"> <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg> 물타기 하고 싶었다</label>
       </div>
     </div>
 
     <!-- 총평 -->
     <div class="journal-section">
-      <h3>📝 총평 / 교훈</h3>
+      <h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> 총평 / 교훈</h3>
       <div class="form-group">
         <textarea id="j_lesson" placeholder="이번 투자에서 배운 점, 다음에 개선할 점..." style="min-height:100px"></textarea>
       </div>
     </div>
 
     <div class="form-actions">
-      <button class="btn btn-primary" onclick="saveJournal()">💾 저장</button>
+      <button class="btn btn-primary" onclick="saveJournal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 저장</button>
       <button class="btn btn-ghost" onclick="clearJournalForm()">초기화</button>
     </div>
   </div>
@@ -1636,7 +1789,7 @@
   <div>
     <div class="card" style="position:sticky;top:120px;">
       <div class="section-row">
-        <div class="section-title" style="font-size:15px">📚 일지 목록</div>
+        <div class="section-title" style="font-size:15px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 일지 목록</div>
         <input type="text" placeholder="검색..." id="journalSearch" oninput="renderJournals()"
           style="padding:5px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;width:100px;outline:none;">
       </div>
@@ -1653,7 +1806,7 @@
       <div id="stab-trades" class="sub-tab-panel">
   <div class="card">
     <div class="section-row">
-      <div class="section-title">📋 거래 기록</div>
+      <div class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> 거래 기록</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
         <div class="filter-row" style="margin:0;">
           <button class="filter-btn active" onclick="setTradeFilter('all',this)">전체</button>
@@ -1662,8 +1815,8 @@
         </div>
         <input type="text" placeholder="종목 검색..." id="tradeSearch" oninput="renderTrades()"
           style="padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;width:140px;outline:none;">
-        <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇️ CSV 내보내기</button>
-        <button class="btn btn-sm" id="cleanOrphanBtn" onclick="cleanOrphanedData()" style="display:none;background:var(--red);color:#fff;border:none;">🧹 고아 데이터 정리</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> CSV 내보내기</button>
+        <button class="btn btn-sm" id="cleanOrphanBtn" onclick="cleanOrphanedData()" style="display:none;background:var(--red);color:#fff;border:none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg> 고아 데이터 정리</button>
       </div>
     </div>
     <div class="table-wrap">
@@ -1697,16 +1850,17 @@
       <div id="stab-cash" class="sub-tab-panel">
   <div class="card">
     <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
-      <span>💰 예수금 관리</span>
+      <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> 예수금 관리</span>
       <span style="display:flex;align-items:center;gap:8px;">
         <span id="cashTabBalance" style="font-size:15px;font-weight:700;color:var(--green)"></span>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="openCashManualModal()" title="입출금 내역 대신 실제 예수금을 직접 입력">✏️ 직접 입력</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="refreshCashDisplay()" title="예수금 자동 계산 새로고침" style="display:inline-flex;align-items:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> 새로고침</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="openCashManualModal()" title="입출금 내역 대신 실제 예수금을 직접 입력" style="display:inline-flex;align-items:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 직접 입력</button>
       </span>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
       <select id="cf2_type" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg3);color:var(--text);min-height:40px;">
-        <option value="deposit">📥 입금</option>
-        <option value="withdraw">📤 출금</option>
+        <option value="deposit">입금</option>
+        <option value="withdraw">출금</option>
       </select>
       <input id="cf2_date" type="date" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg3);color:var(--text);min-height:40px;">
       <input id="cf2_amount" type="text" inputmode="decimal" placeholder="금액 (원)" oninput="formatWithComma(this)" style="flex:1;min-width:110px;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg3);color:var(--text);min-height:40px;">
@@ -1729,7 +1883,7 @@
     </div>
     <div id="cashTabEmpty" class="empty-state" style="display:none">입금/출금 내역이 없습니다.</div>
     <div style="margin-top:14px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--text3);">
-      💡 예수금 = 입금 합계 − 출금 합계 − 현금 매수 합계 + 현금 매도 합계
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> 예수금 = 입금 합계 − 출금 합계 − 현금 매수 합계 + 현금 매도 합계
     </div>
   </div>
 </div>
@@ -1740,7 +1894,7 @@
 
     <!-- ■ 물타기 계산기 -->
     <div class="card">
-      <div class="card-title">💧 물타기 계산기</div>
+      <div class="card-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg> 물타기 계산기</div>
       <div style="font-size:13px;color:var(--text3);margin-bottom:14px;">기존 보유 수량에 추가 매수 시 새 평균단가를 계산합니다.</div>
       <div class="form-grid" style="grid-template-columns:1fr 1fr;">
         <div class="form-group"><label>기존 평균단가 (원)</label><input type="text" inputmode="decimal" id="wa_avgPrice" placeholder="80,000" oninput="formatWithComma(this);calcWaterDown()"></div>
@@ -1749,7 +1903,7 @@
         <div class="form-group"><label>추가 매수 수량 (주)</label><input type="number" id="wa_addQty" placeholder="50" min="0" oninput="calcWaterDown()"></div>
       </div>
       <div id="wa_result" style="display:none;margin-top:4px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:16px;">
-        <div style="font-size:13px;color:var(--text3);margin-bottom:10px;font-weight:600;">📊 계산 결과</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:10px;font-weight:600;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> 계산 결과</div>
         <table style="width:100%;border-collapse:collapse;font-size:14px;">
           <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 0;color:var(--text2)">새 평균단가</td><td id="wa_newAvg" style="text-align:right;font-weight:700;font-size:16px;color:var(--accent)"></td></tr>
           <tr><td style="padding:6px 0;color:var(--text2)">평균단가 변동</td><td id="wa_change" style="text-align:right;font-weight:700"></td></tr>
@@ -1770,8 +1924,8 @@
 
   <!-- 종목 검색 -->
   <div class="card">
-    <div class="card-title">🔍 종목 공시 · 뉴스 검색</div>
-    <div class="alert alert-info">💡 아래 검색창에 종목명 또는 종목코드를 입력하면 DART 공시, 네이버 증권 뉴스, Investing.com에서 직접 검색합니다.</div>
+    <div class="card-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> 종목 공시 · 뉴스 검색</div>
+    <div class="alert alert-info"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> 아래 검색창에 종목명 또는 종목코드를 입력하면 DART 공시, 네이버 증권 뉴스, Investing.com에서 직접 검색합니다.</div>
     <div class="news-search-box">
       <input type="text" id="newsQuery" placeholder="삼성전자 / 005930 / AAPL" list="newsStockList" style="flex:1;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:16px;outline:none;">
       <datalist id="newsStockList"></datalist>
@@ -1785,10 +1939,10 @@
     <!-- DART -->
     <div>
       <div class="card">
-        <div class="card-title">🏛️ DART 전자공시</div>
+        <div class="card-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg> DART 전자공시</div>
         <div class="news-links">
           <div class="news-link-item" onclick="openDart()">
-            <div class="nl-icon">📄</div>
+            <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
             <div class="nl-info">
               <h4>DART 공시 검색</h4>
               <p>금융감독원 전자공시시스템 · 사업보고서, 분기보고서, 주요사항보고서</p>
@@ -1796,7 +1950,7 @@
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
           <div class="news-link-item" onclick="openUrl('https://dart.fss.or.kr/dsac001/mainY.do')">
-            <div class="nl-icon">📅</div>
+            <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
             <div class="nl-info">
               <h4>오늘의 공시</h4>
               <p>당일 제출된 최신 공시 모아보기</p>
@@ -1804,7 +1958,7 @@
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
           <div class="news-link-item" onclick="openUrl('https://dart.fss.or.kr/dsab007/main.do')">
-            <div class="nl-icon">📊</div>
+            <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
             <div class="nl-info">
               <h4>분기 / 반기 / 사업보고서</h4>
               <p>DART 문서검색 — 보고서 종류별 필터 가능</p>
@@ -1812,7 +1966,7 @@
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
           <div class="news-link-item" onclick="openUrl('https://opendart.fss.or.kr/intro/main.do')">
-            <div class="nl-icon">ℹ️</div>
+            <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
             <div class="nl-info">
               <h4>DART OpenAPI 신청</h4>
               <p>OpenDART API 키 신청 및 서비스 안내</p>
@@ -1823,25 +1977,25 @@
       </div>
 
       <div class="card">
-        <div class="card-title">📰 국내 증시 뉴스</div>
+        <div class="card-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6z"/></svg> 국내 증시 뉴스</div>
         <div class="news-links">
           <div class="news-link-item" onclick="openNewsQuery('naver')">
-            <div class="nl-icon">💚</div>
+            <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
             <div class="nl-info"><h4>네이버 금융 뉴스</h4><p>종목 검색어로 최신 뉴스 조회</p></div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
           <div class="news-link-item" onclick="openUrl('https://finance.naver.com/')">
-            <div class="nl-icon">📈</div>
+            <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
             <div class="nl-info"><h4>네이버 금융 메인</h4><p>코스피·코스닥 시장 현황</p></div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
           <div class="news-link-item" onclick="openUrl('https://www.hankyung.com/economy')">
-            <div class="nl-icon">📋</div>
+            <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
             <div class="nl-info"><h4>한국경제 증권</h4><p>한국경제신문 증권 섹션</p></div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
           <div class="news-link-item" onclick="openUrl('https://www.mk.co.kr/news/stock/')">
-            <div class="nl-icon">📌</div>
+            <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg></div>
             <div class="nl-info"><h4>매일경제 주식</h4><p>매일경제신문 주식 섹션</p></div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
@@ -1852,10 +2006,10 @@
     <!-- INVESTING.COM & 해외 -->
     <div>
       <div class="card">
-        <div class="card-title">🌍 Investing.com</div>
+        <div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Investing.com</div>
         <div class="news-links">
           <div class="news-link-item" onclick="openInvesting()">
-            <div class="nl-icon">🔍</div>
+            <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
             <div class="nl-info">
               <h4>Investing.com 종목 검색</h4>
               <p>글로벌 주식·ETF·지수·FX 검색</p>
@@ -1863,17 +2017,17 @@
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
           <div class="news-link-item" onclick="openUrl('https://kr.investing.com/news/stock-market-news')">
-            <div class="nl-icon">📰</div>
+            <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6z"/></svg></div>
             <div class="nl-info"><h4>증시 뉴스</h4><p>Investing.com 한국어판 최신 뉴스</p></div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
           <div class="news-link-item" onclick="openUrl('https://kr.investing.com/economic-calendar/')">
-            <div class="nl-icon">📅</div>
+            <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
             <div class="nl-info"><h4>경제 캘린더</h4><p>FOMC·CPI·고용지표 등 주요 일정</p></div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
           <div class="news-link-item" onclick="openUrl('https://kr.investing.com/earnings-calendar/')">
-            <div class="nl-icon">💰</div>
+            <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
             <div class="nl-info"><h4>실적 캘린더</h4><p>글로벌 기업 실적 발표 일정</p></div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
@@ -1881,25 +2035,25 @@
       </div>
 
       <div class="card">
-        <div class="card-title">🇺🇸 해외 증시 리소스</div>
+        <div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> 해외 증시 리소스</div>
         <div class="news-links">
           <div class="news-link-item" onclick="openUrl('https://finance.yahoo.com')">
-            <div class="nl-icon">🟣</div>
+            <div class="nl-icon"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#7c3aed"></span></div>
             <div class="nl-info"><h4>Yahoo Finance</h4><p>미국 주식 뉴스·실적·재무제표</p></div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
           <div class="news-link-item" onclick="openUrl('https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany')">
-            <div class="nl-icon">🏛️</div>
+            <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg></div>
             <div class="nl-info"><h4>SEC EDGAR</h4><p>미국 기업 10-K·10-Q·8-K 공시</p></div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
           <div class="news-link-item" onclick="openUrl('https://seekingalpha.com')">
-            <div class="nl-icon">🔵</div>
+            <div class="nl-icon"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b82f6"></span></div>
             <div class="nl-info"><h4>Seeking Alpha</h4><p>미국 주식 분석·아이디어</p></div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
           <div class="news-link-item" onclick="openUrl('https://www.macrotrends.net')">
-            <div class="nl-icon">📊</div>
+            <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
             <div class="nl-info"><h4>Macrotrends</h4><p>주식·거시경제 장기 데이터 차트</p></div>
             <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
           </div>
@@ -1910,7 +2064,7 @@
 
   <!-- 포트폴리오 종목별 바로가기 -->
   <div class="card" id="portfolioNewsCard" style="display:none">
-    <div class="card-title">⚡ 보유 종목별 공시·뉴스 바로가기</div>
+    <div class="card-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 보유 종목별 공시·뉴스 바로가기</div>
     <div id="portfolioNewsLinks" style="display:flex;flex-direction:column;gap:8px;margin-top:4px"></div>
   </div>
 </div>
@@ -1924,7 +2078,7 @@
 <!-- SELL MODAL -->
 <div class="modal-overlay" id="sellModal">
   <div class="modal">
-    <div class="modal-title">📤 매도 처리</div>
+    <div class="modal-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> 매도 처리</div>
     <div id="sellModalInfo" style="font-size:14px;color:var(--text2);margin-bottom:12px;"></div>
     <div class="form-grid" style="grid-template-columns:1fr 1fr;">
       <div class="form-group">
@@ -1964,13 +2118,13 @@
 <!-- TARGET MODAL -->
 <div class="modal-overlay" id="targetModal">
   <div class="modal" style="max-width:420px">
-    <div class="modal-title">🎯 목표가 · 손절가 수정</div>
+    <div class="modal-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 목표가 · 손절가 수정</div>
     <div id="targetModalInfo" style="font-size:14px;color:var(--text2);margin-bottom:14px;padding:8px 10px;background:var(--bg3);border-radius:6px;border:1px solid var(--border);">
       <span id="targetModalName" style="font-weight:700;color:var(--text)"></span>
       <span id="targetModalAvg" style="margin-left:8px;color:var(--text3)"></span>
     </div>
     <div style="display:grid;gap:8px;">
-      <div style="font-size:12px;font-weight:700;color:var(--green);margin-top:2px;">📈 수익 목표가</div>
+      <div style="font-size:12px;font-weight:700;color:var(--green);margin-top:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> 수익 목표가</div>
       <input type="hidden" id="tm_ref" value="0">
       <div style="display:grid;grid-template-columns:1fr 80px 1fr;gap:6px;align-items:end;">
         <div><label style="font-size:12px;color:var(--text3);">1단계 (가격)</label><input type="text" inputmode="decimal" id="tm_target1" placeholder="0" oninput="formatWithComma(this);calcTargetPreview();syncPP('tm_target1','tm_target1_p',getNum('tm_ref'))" style="width:100%"></div>
@@ -1987,7 +2141,7 @@
         <div><label style="font-size:12px;color:var(--text3);">%</label><input type="number" id="tm_target3_p" placeholder="0" step="0.1" oninput="syncPC('tm_target3_p','tm_target3',getNum('tm_ref'));calcTargetPreview()" style="width:100%"></div>
         <div id="tm_t3_rate" style="font-size:13px;color:var(--green);padding-bottom:6px;"></div>
       </div>
-      <div style="font-size:12px;font-weight:700;color:var(--red);margin-top:6px;">✂️ 손절가</div>
+      <div style="font-size:12px;font-weight:700;color:var(--red);margin-top:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> 손절가</div>
       <div style="display:grid;grid-template-columns:1fr 80px 1fr;gap:6px;align-items:end;">
         <div><label style="font-size:12px;color:var(--text3);">1단계 (가격)</label><input type="text" inputmode="decimal" id="tm_stop1" placeholder="0" oninput="formatWithComma(this);calcTargetPreview();syncPP('tm_stop1','tm_stop1_p',getNum('tm_ref'))" style="width:100%"></div>
         <div><label style="font-size:12px;color:var(--text3);">%</label><input type="number" id="tm_stop1_p" placeholder="0" step="0.1" oninput="syncPC('tm_stop1_p','tm_stop1',getNum('tm_ref'));calcTargetPreview()" style="width:100%"></div>
@@ -2004,7 +2158,7 @@
 <!-- MC SNAPSHOT MODAL -->
 <div class="modal-overlay" id="mcSnapshotModal">
   <div class="modal" style="max-width:360px">
-    <div class="modal-title">📌 월별 실제 잔액 입력</div>
+    <div class="modal-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg> 월별 실제 잔액 입력</div>
     <div id="mcSnapshotLabel" style="font-size:15px;font-weight:700;color:var(--accent);margin-bottom:14px;"></div>
     <div class="form-group">
       <label>실제 잔액 (원)</label>
@@ -2023,7 +2177,7 @@
 <!-- CASH MANUAL OVERRIDE MODAL -->
 <div class="modal-overlay" id="cashManualModal">
   <div class="modal" style="max-width:360px">
-    <div class="modal-title">💰 예수금 직접 입력</div>
+    <div class="modal-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg> 예수금 직접 입력</div>
     <p style="font-size:12px;color:var(--text3);margin:-4px 0 12px;">총자산/입출금 내역으로 자동 계산된 값 대신 실제 예수금을 직접 입력합니다. 저장 후에는 이 값이 다른 계산보다 우선 적용됩니다.</p>
     <div class="form-group">
       <label>실제 예수금 (원)</label>
@@ -2042,7 +2196,7 @@
 <!-- UPDATE PRICE MODAL -->
 <div class="modal-overlay" id="priceModal">
   <div class="modal">
-    <div class="modal-title">💱 현재가 업데이트</div>
+    <div class="modal-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg> 현재가 업데이트</div>
     <div id="priceModalInfo" style="margin-bottom:14px;padding:10px 12px;background:var(--bg3);border-radius:6px;border:1px solid var(--border);">
       <div style="font-size:16px;font-weight:700;color:var(--text)" id="priceModalName"></div>
       <div style="font-size:13px;color:var(--text3);margin-top:3px" id="priceModalTicker"></div>
@@ -2054,7 +2208,7 @@
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closePriceModal()">취소</button>
-      <button class="btn btn-ghost" id="priceModalAutoBtn" onclick="fetchSinglePrice()" style="display:none">🔄 자동 조회</button>
+      <button class="btn btn-ghost" id="priceModalAutoBtn" onclick="fetchSinglePrice()" style="display:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> 자동 조회</button>
       <button class="btn btn-blue" onclick="confirmPriceUpdate()">업데이트</button>
     </div>
   </div>
@@ -2063,7 +2217,7 @@
 <!-- EDIT STOCK MODAL -->
 <div class="modal-overlay" id="editStockModal">
   <div class="modal" style="max-width:480px">
-    <div class="modal-title">✏️ 종목 정보 편집</div>
+    <div class="modal-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> 종목 정보 편집</div>
     <input type="hidden" id="es_idx">
     <div class="form-grid" style="gap:10px;">
       <div class="form-group">
@@ -2078,29 +2232,29 @@
         <label>섹터</label>
         <select id="es_sector">
           <option value="">선택</option>
-          <optgroup label="🔬 테크·첨단">
+          <optgroup label="테크·첨단">
             <option>반도체</option><option>IT/플랫폼</option><option>AI/소프트웨어</option>
             <option>로봇</option><option>우주항공</option><option>보안/사이버</option>
           </optgroup>
-          <optgroup label="⚡ 에너지·소재">
+          <optgroup label="에너지·소재">
             <option>2차전지</option><option>원자력</option><option>에너지</option>
             <option>철강/소재</option><option>화학</option>
           </optgroup>
-          <optgroup label="🏭 산업·방산">
+          <optgroup label="산업·방산">
             <option>방산</option><option>조선</option><option>자동차</option>
             <option>기계/장비</option>
           </optgroup>
-          <optgroup label="💊 바이오·헬스">
+          <optgroup label="바이오·헬스">
             <option>바이오/헬스</option><option>의료기기</option><option>제약</option>
           </optgroup>
-          <optgroup label="💰 금융·부동산">
+          <optgroup label="금융·부동산">
             <option>금융</option><option>보험</option><option>부동산/건설</option>
           </optgroup>
-          <optgroup label="🛍 소비·서비스">
+          <optgroup label="소비·서비스">
             <option>소비재</option><option>유통/물류</option><option>식품/음료</option>
             <option>통신</option><option>게임/엔터</option><option>미디어</option>
           </optgroup>
-          <optgroup label="📦 기타">
+          <optgroup label="기타">
             <option>ETF/리츠</option><option>해외주식</option><option>기타</option>
           </optgroup>
         </select>
@@ -2109,9 +2263,9 @@
         <label>포트폴리오 위치</label>
         <select id="es_pos">
           <option value="">선택</option>
-          <option value="top">🔴 제일 위 (고위험·고수익)</option>
-          <option value="mid">🔵 중간 (성장주)</option>
-          <option value="bot">🟢 제일 아래 (배당·안정)</option>
+          <option value="top"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#ef4444;margin-right:4px;"></span>제일 위 (고위험·고수익)</option>
+          <option value="mid"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#3b82f6;margin-right:4px;"></span>중간 (성장주)</option>
+          <option value="bot"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#10b981;margin-right:4px;"></span>제일 아래 (배당·안정)</option>
         </select>
       </div>
       <div class="form-group">
@@ -2138,10 +2292,10 @@
 <!-- BULK PRICE UPDATE MODAL -->
 <div class="modal-overlay" id="bulkPriceModal">
   <div class="modal" style="max-width:520px">
-    <div class="modal-title">💱 현재가 일괄 업데이트</div>
+    <div class="modal-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg> 현재가 일괄 업데이트</div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;gap:8px;">
       <p style="font-size:12px;color:var(--text3);margin:0;">모든 보유 종목의 현재가를 한 번에 입력합니다.</p>
-      <button class="btn btn-ghost btn-sm" onclick="fetchAllPrices()" style="flex-shrink:0;" title="티커가 있는 종목을 야후 파이낸스에서 자동 조회">🔄 자동 조회</button>
+      <button class="btn btn-ghost btn-sm" onclick="fetchAllPrices()" style="flex-shrink:0;" title="티커가 있는 종목을 야후 파이낸스에서 자동 조회"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> 자동 조회</button>
     </div>
     <div style="max-height:400px;overflow-y:auto;">
       <table style="width:100%;border-collapse:collapse;font-size:13px;" id="bulkPriceTable">
@@ -2157,7 +2311,7 @@
     </div>
     <div class="modal-actions" style="margin-top:14px;">
       <button class="btn btn-ghost" onclick="closeBulkPriceModal()">취소</button>
-      <button class="btn btn-primary" onclick="saveBulkPrices()">💾 전체 저장</button>
+      <button class="btn btn-primary" onclick="saveBulkPrices()" style="display:inline-flex;align-items:center;gap:5px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 전체 저장</button>
     </div>
   </div>
 </div>
@@ -2165,7 +2319,7 @@
 <!-- BULK EDIT MODAL -->
 <div class="modal-overlay" id="bulkEditModal">
   <div class="modal" style="max-width:700px">
-    <div class="modal-title">✏️ 종목 전체 편집</div>
+    <div class="modal-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 종목 전체 편집</div>
     <p style="font-size:12px;color:var(--text3);margin:0 0 12px;">종목명·평균단가·수량·목표가·손절가를 일괄 수정합니다.</p>
     <div style="max-height:420px;overflow-y:auto;overflow-x:auto;">
       <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:580px;" id="bulkEditTable">
@@ -2183,7 +2337,7 @@
     </div>
     <div class="modal-actions" style="margin-top:14px;">
       <button class="btn btn-ghost" onclick="closeBulkEditModal()">취소</button>
-      <button class="btn btn-primary" onclick="saveBulkEdit()">💾 전체 저장</button>
+      <button class="btn btn-primary" onclick="saveBulkEdit()" style="display:inline-flex;align-items:center;gap:5px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 전체 저장</button>
     </div>
   </div>
 </div>
@@ -2408,7 +2562,7 @@ async function fetchSinglePrice() {
   btn.textContent = '⏳ 조회 중...';
   btn.disabled = true;
   const q = await fetchYFQuote(s.ticker);
-  btn.textContent = '🔄 자동 조회';
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> 자동 조회';
   btn.disabled = false;
   if (!q) { showToast('❌ 시세 조회 실패. 티커를 확인하세요.'); return; }
   s.currentPrice = q.price;
@@ -2434,7 +2588,7 @@ async function fetchCurrentForForm() {
   btn.disabled = true;
   if (statusEl) statusEl.textContent = '조회 중...';
   const q = await fetchYFQuote(ticker);
-  btn.textContent = '🔄 조회';
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> 조회';
   btn.disabled = false;
   if (!q) {
     if (statusEl) statusEl.textContent = '조회 실패';
@@ -2862,9 +3016,9 @@ function today() {
   return new Date().toISOString().slice(0,10);
 }
 function posLabel(p) {
-  if (p === 'top') return '<span class="badge badge-top">🔴 제일 위</span>';
-  if (p === 'mid') return '<span class="badge badge-mid">🔵 중간</span>';
-  if (p === 'bot') return '<span class="badge badge-bot">🟢 제일 아래</span>';
+  if (p === 'top') return '<span class="badge badge-top"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ef4444;margin-right:4px;vertical-align:2px"></span>제일 위</span>';
+  if (p === 'mid') return '<span class="badge badge-mid"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3b82f6;margin-right:4px;vertical-align:2px"></span>중간</span>';
+  if (p === 'bot') return '<span class="badge badge-bot"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;margin-right:4px;vertical-align:2px"></span>제일 아래</span>';
   return '-';
 }
 function posText(p) {
@@ -3057,7 +3211,7 @@ function renderSummary() {
   const hasEx = (state.cashflows||[]).length > 0 || state.totalAsset > 0 || state.cashManual != null;
   const exCls = exAmt >= 0 ? '' : 'dn';
   const cells = [
-    { label:'💰 예수금' + (state.cashManual != null ? ' ✏️' : ''), val: hasEx ? (exAmt<0?'-':'')+'₩'+fmt(Math.abs(exAmt)) : '클릭하여 입력', cls:exCls, click:'openCashModal()' },
+    { label:'예수금' + (state.cashManual != null ? ' <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>' : ''), val: hasEx ? (exAmt<0?'-':'')+'₩'+fmt(Math.abs(exAmt)) : '클릭하여 입력', cls:exCls, click:'openCashModal()' },
     ...(state.totalAsset > 0 ? [{
       label:'순자산총액', val:'₩'+fmt(netAsset), cls:''
     }] : []),
@@ -3174,11 +3328,11 @@ function renderPortfolio() {
       </td>
       <td class="col-action" style="text-align:center">
         <div style="display:flex;gap:4px;justify-content:center;flex-wrap:nowrap;">
-          <button class="hts-action-btn btn-price"  onclick="openPriceModal(${origIdx})"  title="현재가 입력">💰 현재가</button>
-          <button class="hts-action-btn btn-target" onclick="openTargetModal(${origIdx})" title="목표가/손절가 설정">🎯 목표</button>
-          <button class="hts-action-btn btn-sell"   onclick="openSellModal(${origIdx})"   title="매도 등록">📤 매도</button>
-          <button class="hts-action-btn btn-edit"   onclick="openEditStockModal(${origIdx})" title="종목 정보 편집">✏️ 편집</button>
-          <button class="hts-action-btn btn-delete" onclick="deleteStock(${origIdx})"     title="종목 삭제">🗑 삭제</button>
+          <button class="hts-action-btn btn-price"  onclick="openPriceModal(${origIdx})"  title="현재가 입력" style="display:inline-flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;flex-shrink:0"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> 현재가</button>
+          <button class="hts-action-btn btn-target" onclick="openTargetModal(${origIdx})" title="목표가/손절가 설정" style="display:inline-flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 목표</button>
+          <button class="hts-action-btn btn-sell"   onclick="openSellModal(${origIdx})"   title="매도 등록" style="display:inline-flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> 매도</button>
+          <button class="hts-action-btn btn-edit"   onclick="openEditStockModal(${origIdx})" title="종목 정보 편집" style="display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 편집</button>
+          <button class="hts-action-btn btn-delete" onclick="deleteStock(${origIdx})"     title="종목 삭제" style="display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg> 삭제</button>
         </div>
       </td>
     </tr>${subRow}`;
@@ -3885,7 +4039,7 @@ function saveJournal() {
   if (editJournalIdx != null) {
     state.journals[editJournalIdx] = entry; // draft 플래그 없음 → 완성 처리
     editJournalIdx = null;
-    document.getElementById('journalFormTitle').textContent = '✏️ 새 투자 일지 작성';
+    document.getElementById('journalFormTitle').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 새 투자 일지 작성';
   } else {
     state.journals.unshift(entry);
   }
@@ -3919,7 +4073,7 @@ function clearJournalForm() {
   });
   toggleJournalFields();
   editJournalIdx = null;
-  document.getElementById('journalFormTitle').textContent = '✏️ 새 투자 일지 작성';
+  document.getElementById('journalFormTitle').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 새 투자 일지 작성';
 }
 
 // ── 투자일지 추가 매수 UI 헬퍼 ─────────────────────────────────────────────────
@@ -3973,7 +4127,7 @@ function renderAddsBuyTable(j) {
   }).join('');
 
   return `<div style="margin-top:10px;padding:8px;background:var(--bg3);border-radius:6px;">
-    <div style="font-size:12px;font-weight:600;color:var(--yellow);margin-bottom:5px;">📈 추가 매수 내역</div>
+    <div style="font-size:12px;font-weight:600;color:var(--yellow);margin-bottom:5px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;flex-shrink:0"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> 추가 매수 내역</div>
     <table style="width:100%;font-size:12px;border-collapse:collapse;">
       <thead>
         <tr style="color:var(--text3);border-bottom:1px solid var(--border);">
@@ -4001,7 +4155,7 @@ function renderJournals() {
     const origIdx = state.journals.indexOf(j);
     const typeLabel = j.type === 'buy' ? '<span class="badge badge-buy">매수</span>' : '<span class="badge badge-sell">매도</span>';
     const creditBadge = j.tradeType === 'credit' ? '<span class="badge" style="background:rgba(107,33,168,0.12);color:#7c3aed;border:1px solid rgba(107,33,168,0.25);margin-left:4px;">신용</span>' : '';
-    const draftBadge = j.draft ? '<span class="badge" style="background:rgba(217,119,6,0.13);color:#d97706;border:1px solid rgba(217,119,6,0.3);margin-left:4px;">📝 미완성</span>' : '';
+    const draftBadge = j.draft ? '<span class="badge" style="background:rgba(217,119,6,0.13);color:#d97706;border:1px solid rgba(217,119,6,0.3);margin-left:4px;">미완성</span>' : '';
     const tags = [...(j.buyReasons||[]), ...(j.sellReasons||[])].slice(0,3);
     const rCls = j.returnRate != null ? (j.returnRate >= 0 ? 'return-pos' : 'return-neg') : '';
     return `<div class="journal-card" onclick="toggleJournalDetail(${origIdx}, this)">
@@ -4022,14 +4176,14 @@ function renderJournals() {
       </div>
       <div class="journal-detail" id="jd_${origIdx}" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
         ${j.lesson ? `<div style="font-size:13px;color:var(--text2);margin-bottom:8px;font-style:italic">"${j.lesson}"</div>` : ''}
-        ${j.buyNote ? `<div style="font-size:13px;color:var(--text2);margin-bottom:4px">💚 ${j.buyNote}</div>` : ''}
-        ${j.sellNote ? `<div style="font-size:13px;color:var(--text2);margin-bottom:4px">🔴 ${j.sellNote}</div>` : ''}
+        ${j.buyNote ? `<div style="font-size:13px;color:var(--text2);margin-bottom:4px"><span style="color:#10b981;font-size:10px;font-weight:700;margin-right:3px;">●</span>${j.buyNote}</div>` : ''}
+        ${j.sellNote ? `<div style="font-size:13px;color:var(--text2);margin-bottom:4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ef4444;margin-right:4px;vertical-align:2px"></span>${j.sellNote}</div>` : ''}
         ${renderAddsBuyTable(j)}
         ${(j.target1||j.target2||j.target3||j.stop1) ? `<div style="margin-top:8px;padding:6px 8px;background:var(--bg3);border-radius:5px;font-size:12px;display:flex;flex-wrap:wrap;gap:4px 10px;">
-          ${j.target1 ? `<span style="color:var(--green)">🎯 1단계 ${fmt(j.target1)}</span>` : ''}
+          ${j.target1 ? `<span style="color:var(--green)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 1단계 ${fmt(j.target1)}</span>` : ''}
           ${j.target2 ? `<span style="color:var(--green)">2단계 ${fmt(j.target2)}</span>` : ''}
           ${j.target3 ? `<span style="color:var(--green)">3단계 ${fmt(j.target3)}</span>` : ''}
-          ${j.stop1 ? `<span style="color:var(--red)">✂️ 손절1 ${fmt(j.stop1)}</span>` : ''}
+          ${j.stop1 ? `<span style="color:var(--red)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;flex-shrink:0"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg> 손절1 ${fmt(j.stop1)}</span>` : ''}
         </div>` : ''}
         <div style="display:flex;gap:6px;margin-top:8px;">
           <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();editJournal(${origIdx})">수정</button>
@@ -4080,15 +4234,24 @@ function editJournal(idx) {
     if (r) { r.checked = true; r.closest('.checkbox-item')?.classList.add('checked'); }
   }
   toggleJournalFields();
-  document.getElementById('journalFormTitle').textContent = '✏️ 일지 수정';
-  window.scrollTo({top:0,behavior:'smooth'});
+  document.getElementById('journalFormTitle').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 투자 일지 수정';
+  switchSubTab('journal');
+  document.getElementById('j_name').focus();
 }
 
-function deleteJournal(idx) {
-  if (!confirm('이 일지를 삭제할까요?')) return;
-  state.journals.splice(idx, 1);
-  save();
-  renderJournals();
+// ── 예수금 새로고침 ────────────────────────────────────────────────────────────
+function refreshCashDisplay() {
+  if (state.cashManual != null) {
+    if (confirm('직접 입력한 예수금이 설정되어 있습니다.\n\n[확인] → 직접 입력값을 지우고 자동 계산으로 전환\n[취소] → 직접 입력값 유지하며 화면만 새로고침')) {
+      state.cashManual = null;
+      try { save(); } catch(e) {}
+    }
+  }
+  try { renderSummary(); } catch(e) {}
+  try { renderCashTab(); } catch(e) {}
+  try { renderExsugeum(); } catch(e) {}
+  try { renderPortfolioBar(); } catch(e) {}
+  showToast('예수금이 재계산되었습니다');
 }
 
 function updateJournalDatalist() {
@@ -4651,6 +4814,7 @@ if ('serviceWorker' in navigator) {
       <table style="width:100%;border-collapse:collapse;">
         <thead><tr style="background:var(--bg3);">
           <th style="padding:8px;font-size:12px;text-align:left;color:var(--text3);font-weight:600;">날짜</th>
+          <th style="padding:8px;f
           <th style="padding:8px;font-size:12px;text-align:left;color:var(--text3);font-weight:600;">구분</th>
           <th style="padding:8px;font-size:12px;text-align:right;color:var(--text3);font-weight:600;">금액</th>
           <th style="padding:8px;font-size:12px;color:var(--text3);font-weight:600;">메모</th>

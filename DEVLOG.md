@@ -1,7 +1,7 @@
 # StockBook — 개발 작업 로그
 
 **최종 업데이트**: 2026-07-03  
-**현재 버전**: 1.3.1  
+**현재 버전**: 1.4.0  
 **GitHub**: https://github.com/mj94920/stockbook--  
 **배포 URL**: https://mj94920.github.io/stockbook--/주식포트폴리오관리.html
 
@@ -218,9 +218,45 @@ StockBook-PWA/
 
 ---
 
-### v1.3.1 (2026-07-03) — 현재
+### v1.4.0 (2026-07-03) — 현재
 
-**이번 세션 작업**
+#### 파일 복구 (치명적 손상 복원)
+
+- **문제**: `주식포트폴리오관리.html`이 4145줄에서 잘려 약 570줄 분량의 함수가 소실됨
+  - 소실된 함수: `getCashBalance()`, `renderCashTab()`, `renderTrades()`, `renderBalanceSummary()`, `renderBalanceDonut()`, `updateJournalDatalist()`, `saveCash2()`, `deleteCashTab()`, `openCashManualModal()`, `confirmCashManual()`, `clearCashManual()`, `renderExsugeum()`, `renderCashList()` 등 16개 이상 + `</script>`, `</body>`, `</html>` 태그
+- **복원 방법**: `GIT_DIR=.git git show HEAD:주식포트폴리오관리.html`로 git HEAD 버전에서 tail 570줄 추출 → Python append로 안전하게 복원
+- **주의**: `Edit` 툴로 대용량 파일을 수정할 경우 파일이 잘릴 수 있음 → 대용량 파일은 Python write 방식 사용
+
+#### `refreshCashDisplay()` 기능 개선
+
+- **기존**: 예수금을 강제 재계산하는 버튼 (직접입력값 무조건 삭제)
+- **개선**: `state.cashManual`이 설정되어 있을 경우 confirm 다이얼로그 표시
+  - `[확인]` → 직접입력값을 지우고 자동 계산으로 전환
+  - `[취소]` → 직접입력값 유지하며 화면만 새로고침
+- 예수금 탭 헤더에 🔄 새로고침 버튼 추가 (직접입력 버튼 왼쪽)
+
+#### UI: 탭 아이콘 emoji → SVG 전환
+
+- 7개 서브탭 아이콘을 OS별 렌더링 차이가 있는 emoji에서 일관된 SVG Lucide 아이콘으로 교체
+  - 잔고: `briefcase`, 매수등록: `plus`, 투자일지: `file-text`, 거래기록: `activity`
+  - 예수금: `dollar-sign`, 물타기: `file-list`, 뉴스: `newspaper`
+
+#### UI: Glassmorphism (유리 형태) 디자인 강화
+
+- **배경**: `--bg-gradient`에 보라/파랑/초록 색상 방사형 오브 3개 추가 → 유리 카드가 배경을 투과해 색이 비치는 효과
+- **배경 애니메이션**: `body::before`, `body::after` 유사 오브가 `orbFloat` 애니메이션으로 천천히 이동 (18s, 22s 주기)
+- **CSS 변수 강화**:
+  - `--card-bg: rgba(17,24,39,0.70 → 0.48)` — 카드 배경 불투명도 낮춤
+  - `--glass-bg: rgba(17,24,39,0.45 → 0.32)` — 탭바/서브탭 배경 더 투명하게
+  - `--glass-blur: blur(16px → 20px)` — 블러 강도 높임
+  - `--glass-border: rgba(255,255,255,0.12)` 신규 — 카드 테두리 밝기 강화
+  - `--glass-shadow` 신규 — `inset 0 1px 0` 상단 하이라이트 + 외부 딥 쉐도우
+- **적용 범위 확대**: `.hts-bar`, `.modal`, `.sub-tabs`, `.sub-tab-body`, `.btn-ghost`, `.header-action-btn`, `.theme-toggle-btn`, `.form-group input/select/textarea`, `thead th`, `.portfolio-table .col-action`에 `backdrop-filter` 추가
+- **라이트 모드**: 대응 오버라이드 추가 (흰색 유리 계열)
+
+---
+
+### v1.3.1 (2026-07-03)
 
 #### 프로젝트 구조 통합
 
@@ -252,6 +288,7 @@ StockBook-PWA/
 ## Git 커밋 전체 이력
 
 ```
+(v1.4.0)  feat: refreshCashDisplay 개선, SVG 탭 아이콘, 파일 복구
 6e282dc  fix: 뉴스탭 보유종목 링크 중복 제거
 2d07ba5  fix: 뉴스탭 종목 버튼에서 📰뉴스·KRX 제거
 980cfd7  fix: 월별 실적 입력을 prompt() → 전용 모달로 교체
