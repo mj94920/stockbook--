@@ -20,9 +20,20 @@ ipcMain.handle('load-state', async () => {
 
 ipcMain.handle('save-state', async (_event, data) => {
   try {
-    fs.writeFileSync(getDataFile(), data, 'utf-8');
+    const f = getDataFile();
+    const tmp = f + '.tmp';
+    // 임시 파일에 먼저 쓰고 원자적으로 교체 (저장 중 크래시 시 데이터 보호)
+    fs.writeFileSync(tmp, data, 'utf-8');
+    fs.renameSync(tmp, f);
+    // 하루 1회 .bak 백업 (날짜가 바뀐 경우에만)
+    const bak = f + '.bak';
+    const today = new Date().toDateString();
+    let bakDate = null;
+    try { bakDate = fs.statSync(bak).mtime.toDateString(); } catch {}
+    if (bakDate !== today) fs.copyFileSync(f, bak);
     return true;
   } catch (e) {
+    console.error('[StockBook] save-state 오류:', e);
     return false;
   }
 });

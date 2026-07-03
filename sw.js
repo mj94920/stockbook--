@@ -1,4 +1,4 @@
-const CACHE = 'stockbook-v3';
+const CACHE = 'stockbook-v4';
 const ASSETS = [
   './주식포트폴리오관리.html',
   './manifest.json',
