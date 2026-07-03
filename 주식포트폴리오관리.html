@@ -1400,11 +1400,19 @@
   <!-- SUMMARY -->
   <div id="htsSummary" class="hts-bar"></div>
 
-  <!-- PORTFOLIO BAR -->
+  <!-- PORTFOLIO BAR + DONUT -->
   <div class="portfolio-bar-wrap" id="portfolioBar" style="display:none">
-    <div style="font-size:12px;color:var(--text3);margin-bottom:6px;">포트폴리오 비중</div>
-    <div class="portfolio-bar" id="portfolioBarSegs"></div>
-    <div class="portfolio-bar-legend" id="portfolioBarLegend"></div>
+    <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
+      <div class="donut-wrap" style="width:140px;height:140px;flex-shrink:0;">
+        <div class="donut-chart" id="portDonut"></div>
+        <div class="donut-hole" style="width:60%;height:60%;"></div>
+      </div>
+      <div style="flex:1;min-width:160px;">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:6px;">포트폴리오 비중</div>
+        <div class="portfolio-bar" id="portfolioBarSegs"></div>
+        <div class="portfolio-bar-legend" id="portfolioBarLegend"></div>
+      </div>
+    </div>
   </div>
 
   <!-- 잔고 테이블 -->
@@ -3267,6 +3275,22 @@ function renderPortfolioBar() {
   const cashLegend = cashPct > 0 ? `<div class="legend-item"><div class="legend-dot" style="background:var(--bg4);border:1px dashed var(--border)"></div>현금 ${cashPct.toFixed(1)}%</div>` : '';
   document.getElementById('portfolioBarLegend').innerHTML = segs.map(s =>
     `<div class="legend-item"><div class="legend-dot" style="background:${s.color}"></div>${s.name} ${s.w.toFixed(1)}%</div>`).join('') + cashLegend;
+  renderPortfolioDonut(segs, cashPct, cash, cashBase);
+}
+
+function renderPortfolioDonut(segs, cashPct, cash, cashBase) {
+  const donutEl = document.getElementById('portDonut');
+  if (!donutEl) return;
+  if (!cashBase || cashBase <= 0) { donutEl.style.background = 'var(--bg4)'; return; }
+  let acc = 0;
+  const allSegs = [...segs];
+  if (cashPct > 0) allSegs.push({ color: 'var(--bg4)', w: cashPct });
+  const stops = allSegs.map(s => {
+    const start = acc;
+    acc += s.w;
+    return `${s.color} ${start.toFixed(2)}% ${acc.toFixed(2)}%`;
+  }).join(', ');
+  donutEl.style.background = `conic-gradient(${stops})`;
 }
 
 let prevPricesMap = {};
@@ -4756,90 +4780,4 @@ function closeCashModal() {
 function saveCash() {
   const type   = document.getElementById('cf_type').value;
   const date   = document.getElementById('cf_date').value || today();
-  const amount = parseFloat(String(document.getElementById('cf_amount').value).replace(/,/g,''));
-  const memo   = document.getElementById('cf_memo').value.trim();
-  if (isNaN(amount) || amount <= 0) { showToast('금액을 올바르게 입력해 주세요'); return; }
-  state.cashflows = state.cashflows || [];
-  state.cashflows.unshift({ date, type, amount, memo });
-  save();
-  renderExsugeum();
-  renderSummary();
-  renderCashList();
-  document.getElementById('cf_amount').value = '';
-  document.getElementById('cf_memo').value = '';
-  showToast(type === 'deposit' ? `✅ 입금 ${fmt(amount)}원 기록` : `✅ 출금 ${fmt(amount)}원 기록`);
-}
-
-function deleteCash(idx) {
-  if (!confirm('삭제할까요?')) return;
-  state.cashflows.splice(idx, 1);
-  save();
-  renderExsugeum();
-  renderSummary();
-  renderCashList();
-}
-
-function renderCashList() {
-  const tbody = document.getElementById('cashListBody');
-  if (!tbody) return;
-  const rows = (state.cashflows||[]);
-  if (rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:18px;">내역 없음</td></tr>';
-    return;
-  }
-  tbody.innerHTML = rows.map((c, i) => `
-    <tr>
-      <td style="padding:6px 8px;font-size:13px;color:var(--text3);">${c.date}</td>
-      <td style="padding:6px 8px;font-size:13px;font-weight:600;color:${c.type==='deposit'?'var(--green)':'var(--red)'};">${c.type==='deposit'?'입금':'출금'}</td>
-      <td style="padding:6px 8px;font-size:13px;text-align:right;font-weight:700;">${fmt(c.amount)}원</td>
-      <td style="padding:6px 8px;font-size:12px;color:var(--text3);">${c.memo||''}
-        <button onclick="deleteCash(${i})" style="float:right;background:none;border:none;cursor:pointer;color:var(--text3);font-size:13px;" title="삭제">🗑</button>
-      </td>
-    </tr>`).join('');
-}
-
-// 서비스워커 등록 (PWA)
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  });
-}
-</script>
-
-<!-- 입금/출금 모달 -->
-<div id="cashModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000;align-items:center;justify-content:center;">
-  <div style="width:480px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;border-radius:12px;background:var(--bg2);border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,.2);">
-    <div style="padding:18px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-      <div style="font-size:17px;font-weight:700;">💰 예수금 관리</div>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div style="font-size:13px;color:var(--text3);">현재 예수금 <span id="cashModalBalance" style="font-weight:700;"></span></div>
-        <button onclick="openCashManualModal()" style="padding:4px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--text2);font-size:12px;" title="입출금 내역 대신 실제 예수금을 직접 입력">✏️ 직접 입력</button>
-        <button onclick="closeCashModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text3);">✕</button>
-      </div>
-    </div>
-    <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-      <select id="cf_type" style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--bg);color:var(--text);">
-        <option value="deposit">📥 입금</option>
-        <option value="withdraw">📤 출금</option>
-      </select>
-      <input id="cf_date" type="date" style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--bg);color:var(--text);">
-      <input id="cf_amount" type="number" placeholder="금액 (원)" style="flex:1;min-width:110px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--bg);color:var(--text);">
-      <input id="cf_memo" type="text" placeholder="메모" style="flex:1;min-width:90px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--bg);color:var(--text);">
-      <button onclick="saveCash()" style="padding:7px 16px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;">추가</button>
-    </div>
-    <div style="overflow-y:auto;flex:1;padding:4px 0;">
-      <table style="width:100%;border-collapse:collapse;">
-        <thead><tr style="background:var(--bg3);">
-          <th style="padding:8px;font-size:12px;text-align:left;color:var(--text3);font-weight:600;">날짜</th>
-          <th style="padding:8px;f
-          <th style="padding:8px;font-size:12px;text-align:left;color:var(--text3);font-weight:600;">구분</th>
-          <th style="padding:8px;font-size:12px;text-align:right;color:var(--text3);font-weight:600;">금액</th>
-          <th style="padding:8px;font-size:12px;color:var(--text3);font-weight:600;">메모</th>
-        </tr></thead>
-        <tbody id="cashListBody"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-</body>
-</html>
+  const amount =
