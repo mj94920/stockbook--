@@ -1,7 +1,8 @@
-const CACHE = 'stockbook-v4';
+const CACHE = 'stockbook-v5';
 const ASSETS = [
   './주식포트폴리오관리.html',
   './manifest.json',
+  './logo.svg',
   './icon-192.png',
   './icon-512.png',
 ];
