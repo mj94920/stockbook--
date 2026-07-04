@@ -1133,6 +1133,50 @@
     animation: flash-down 0.8s ease-out;
   }
 
+  /* ── 모바일 인트로 오버레이 ── */
+  #mobileIntro {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #0d1f3c;
+    z-index: 9999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+  #mobileIntro.visible { display: flex; }
+  @keyframes introFadeIn {
+    from { opacity: 0; transform: scale(0.88); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes introFadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+  }
+  #mobileIntroLogo {
+    animation: introFadeIn 0.55s cubic-bezier(.22,1,.36,1) both;
+  }
+  #mobileIntroText {
+    animation: introFadeIn 0.55s 0.15s cubic-bezier(.22,1,.36,1) both;
+    text-align: center;
+  }
+  #mobileIntroText h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f3f4f6;
+    margin: 0 0 6px;
+    letter-spacing: -0.3px;
+  }
+  #mobileIntroText p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+    margin: 0;
+  }
+  #mobileIntro.fade-out {
+    animation: introFadeOut 0.4s ease forwards;
+  }
+
   /* ── SCROLLBAR ── */
   ::-webkit-scrollbar {
     width: 6px;
@@ -1452,6 +1496,17 @@
 </style>
 </head>
 <body>
+
+<!-- ── 모바일 인트로 오버레이 (mobile standalone 전용) ── -->
+<div id="mobileIntro">
+  <div id="mobileIntroLogo">
+    <img src="./icon-192.png" alt="Stock Book" width="96" height="96" style="border-radius:22px;">
+  </div>
+  <div id="mobileIntroText">
+    <h1>Stock Book Mobile</h1>
+    <p>v1.4.1</p>
+  </div>
+</div>
 
 <!-- HEADER -->
 <div class="header">
@@ -2105,11 +2160,6 @@
       <div class="card">
         <div class="card-title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6z"/></svg> 국내 증시 뉴스</div>
         <div class="news-links">
-          <div class="news-link-item" onclick="openNewsQuery('naver')">
-            <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-            <div class="nl-info"><h4>네이버 금융 뉴스</h4><p>종목 검색어로 최신 뉴스 조회</p></div>
-            <span style="margin-left:auto;color:var(--text3);font-size:13px;">↗</span>
-          </div>
           <div class="news-link-item" onclick="openUrl('https://finance.naver.com/')">
             <div class="nl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
             <div class="nl-info"><h4>네이버 금융 메인</h4><p>코스피·코스닥 시장 현황</p></div>
@@ -5049,6 +5099,22 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// 모바일 standalone 인트로 (TWA/PWA 설치 앱 전용)
+(function() {
+  const isStandalone = window.navigator.standalone ||
+    window.matchMedia('(display-mode: standalone)').matches;
+  if (isStandalone) {
+    const intro = document.getElementById('mobileIntro');
+    if (intro) {
+      intro.classList.add('visible');
+      setTimeout(() => {
+        intro.classList.add('fade-out');
+        setTimeout(() => intro.remove(), 420);
+      }, 1600);
+    }
+  }
+})();
+
 // 서비스워커 등록 (PWA)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -5086,6 +5152,7 @@ if ('serviceWorker' in navigator) {
     <div class="settings-close-row">
       <button class="btn btn-ghost" onclick="closeSettings()">닫기</button>
     </div>
+    <div style="text-align:center;font-size:11px;color:var(--text3);padding:8px 0 2px;opacity:0.6;">Stock Book v1.4.1</div>
   </div>
 </div>
 
