@@ -2561,16 +2561,24 @@ async function fetchNaverQuote(code) {
   } catch (_) { return null; }
 }
 
-// 해외 종목 전용 — 야후 파이낸스 (query1 → query2 → CORS프록시 순 fallback)
+// 해외 종목 전용 — 야후 파이낸스 v7 quote (query1 → query2 → CORS프록시 순 fallback)
 async function fetchYFQuoteIntl(ticker) {
-  const path = `/v8/finance/chart/${encodeURIComponent(ticker)}?range=1d&interval=1d&includePrePost=false`;
-  const endpoints = [
-    `https://query1.finance.yahoo.com${path}`,
-    `https://query2.finance.yahoo.com${path}`,
-  ];
-  const parseYF = data => {
+  // v7 quote 파서 (실시간 시세, 가장 정확)
+  const parseYFv7 = data => {
+    const result = data?.quoteResponse?.result?.[0];
+    if (!result?.regularMarketPrice) return null;
+    return {
+      symbol:    ticker,
+      price:     result.regularMarketPrice,
+      prevClose: result.regularMarketPreviousClose ?? null,
+      openPrice: result.regularMarketOpen          ?? null,
+      currency:  result.currency                   ?? 'USD',
+    };
+  };
+  // v8 chart 파서 (폴백용)
+  const parseYFv8 = data => {
     const meta = data?.chart?.result?.[0]?.meta;
-    if (!meta || !meta.regularMarketPrice) return null;
+    if (!meta?.regularMarketPrice) return null;
     return {
       symbol:    ticker,
       price:     meta.regularMarketPrice,
@@ -2579,22 +2587,31 @@ async function fetchYFQuoteIntl(ticker) {
       currency:  meta.currency ?? 'USD',
     };
   };
-  // 1) 직접 접속 (query1, query2)
-  for (const url of endpoints) {
+
+  const v7Url  = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(ticker)}`;
+  const v7Url2 = `https://query2.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(ticker)}`;
+  const v8Url  = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?range=1d&interval=1d&includePrePost=false`;
+
+  // 1) 직접 접속 — v7 query1/query2
+  for (const [url, parser] of [[v7Url, parseYFv7], [v7Url2, parseYFv7]]) {
     try {
       const res = await fetch(url, { method: 'GET', credentials: 'omit' });
       if (!res.ok) continue;
-      const result = parseYF(await res.json());
+      const result = parser(await res.json());
       if (result) return result;
-    } catch (_) { /* CORS or network — try next */ }
+    } catch (_) {}
   }
-  // 2) CORS 프록시 fallback
-  try {
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(endpoints[0])}`;
-    const res = await fetch(proxyUrl, { method: 'GET' });
-    if (!res.ok) return null;
-    return parseYF(await res.json());
-  } catch (_) { return null; }
+  // 2) CORS 프록시 fallback (v7 → v8 순)
+  for (const [url, parser] of [[v7Url, parseYFv7], [v8Url, parseYFv8]]) {
+    try {
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+      const res = await fetch(proxyUrl, { method: 'GET' });
+      if (!res.ok) continue;
+      const result = parser(await res.json());
+      if (result) return result;
+    } catch (_) {}
+  }
+  return null;
 }
 
 // 통합 조회 — Electron: IPC(CORS 없음) 우선 / PWA: 웹 fetch 사용

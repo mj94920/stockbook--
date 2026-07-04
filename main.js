@@ -37,19 +37,34 @@ ipcMain.handle('fetch-quote', async (_event, rawTicker) => {
   rawTicker = rawTicker.trim();
   const isKrNum = /^\d{6}$/.test(rawTicker);
 
-  const parseYF = (body, symbol) => {
+  // 야후 v7 quote API 파서 (실시간 시세, 가장 정확)
+  const parseYFv7 = (body, symbol) => {
     try {
-      const d    = JSON.parse(body);
-      const meta = d?.chart?.result?.[0]?.meta;
-      if (!meta?.regularMarketPrice) return null;
+      const d      = JSON.parse(body);
+      const result = d?.quoteResponse?.result?.[0];
+      if (!result?.regularMarketPrice) return null;
       return {
         symbol,
-        price:     meta.regularMarketPrice,
-        prevClose: meta.previousClose ?? meta.chartPreviousClose ?? null,
-        openPrice: meta.regularMarketOpen ?? null,
-        currency:  meta.currency ?? 'USD',
+        price:     result.regularMarketPrice,
+        prevClose: result.regularMarketPreviousClose ?? null,
+        openPrice: result.regularMarketOpen          ?? null,
+        currency:  result.currency                   ?? 'USD',
       };
     } catch (_) { return null; }
+  };
+
+  // 야후 v7 quote 조회 (query1 → query2 순)
+  const fetchYFv7 = async (sym) => {
+    for (const host of ['query1', 'query2']) {
+      try {
+        const body = await httpsGet(
+          `https://${host}.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(sym)}`
+        );
+        const result = parseYFv7(body, sym);
+        if (result) return result;
+      } catch (_) {}
+    }
+    return null;
   };
 
   if (isKrNum) {
@@ -69,33 +84,46 @@ ipcMain.handle('fetch-quote', async (_event, rawTicker) => {
       };
     } catch (_) { /* 네이버 실패 시 야후 폴백 */ }
 
-    // 2) 야후 파이낸스 .KS / .KQ
+    // 2) 야후 파이낸스 v7 quote .KS / .KQ
     for (const suffix of ['.KS', '.KQ']) {
-      const sym = rawTicker + suffix;
-      try {
-        const body = await httpsGet(
-          `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=1d&includePrePost=false`
-        );
-        const result = parseYF(body, sym);
-        if (result) return { ...result, currency: result.currency || 'KRW' };
-      } catch (_) {}
+      const result = await fetchYFv7(rawTicker + suffix);
+      if (result) return { ...result, currency: result.currency || 'KRW' };
     }
     return null;
   }
 
-  // 해외 종목
+  // 해외 종목 — 야후 v7 quote
   const sym = rawTicker.toUpperCase();
+  const result = await fetchYFv7(sym);
+  if (result) return result;
+  // v7 실패 시 v8 chart 폴백
   try {
     const body = await httpsGet(
       `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=1d&includePrePost=false`
     );
-    return parseYF(body, sym);
+    const d    = JSON.parse(body);
+    const meta = d?.chart?.result?.[0]?.meta;
+    if (meta?.regularMarketPrice) return {
+      symbol:    sym,
+      price:     meta.regularMarketPrice,
+      prevClose: meta.previousClose ?? meta.chartPreviousClose ?? null,
+      openPrice: meta.regularMarketOpen ?? null,
+      currency:  meta.currency ?? 'USD',
+    };
   } catch (_) {}
   try {
     const body = await httpsGet(
       `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=1d&includePrePost=false`
     );
-    return parseYF(body, sym);
+    const d    = JSON.parse(body);
+    const meta = d?.chart?.result?.[0]?.meta;
+    if (meta?.regularMarketPrice) return {
+      symbol:    sym,
+      price:     meta.regularMarketPrice,
+      prevClose: meta.previousClose ?? meta.chartPreviousClose ?? null,
+      openPrice: meta.regularMarketOpen ?? null,
+      currency:  meta.currency ?? 'USD',
+    };
   } catch (_) {}
   return null;
 });
