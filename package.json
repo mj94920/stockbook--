@@ -9,7 +9,7 @@
   },
   "build": {
     "appId": "com.mj.stockbook",
-    "productName": "StockBook",
+    "productName": "Stock Book",
     "electronVersion": "31.7.7",
     "directories": {
       "output": "C:\\Temp\\StockBookBuild"

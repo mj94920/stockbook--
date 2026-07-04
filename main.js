@@ -56,7 +56,7 @@ function createWindow() {
     height:    920,
     minWidth:  900,
     minHeight: 600,
-    title: 'StockBook — 주식 포트폴리오',
+    title: 'Stock Book — 주식 포트폴리오',
     icon: path.join(__dirname, 'icon-512.png'),
     webPreferences: {
       nodeIntegration:  false,
