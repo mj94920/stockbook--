@@ -58,6 +58,8 @@ function createWindow() {
     minHeight: 600,
     title: 'Stock Book — 주식 포트폴리오',
     icon: path.join(__dirname, 'icon-512.png'),
+    backgroundColor: '#0d1421', // 로딩 중 흰 화면 번쩍임 방지
+    show: false,                // 완전히 렌더링된 후 표시
     webPreferences: {
       nodeIntegration:  false,
       contextIsolation: true,
@@ -67,6 +69,7 @@ function createWindow() {
 
   win.loadFile(path.join(__dirname, '주식포트폴리오관리.html'));
   win.setMenuBarVisibility(false);
+  win.once('ready-to-show', () => win.show()); // 렌더링 완료 후 창 표시
 
   // ── 외부 URL은 모두 시스템 기본 브라우저로 열기 ──────────────────────────
   win.webContents.setWindowOpenHandler(({ url }) => {
