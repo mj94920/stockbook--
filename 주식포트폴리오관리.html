@@ -455,30 +455,19 @@
 
   /* ── PORTFOLIO BAR (비중 표시 그라데이션) ── */
   .portfolio-bar-wrap {
-    margin-bottom: 24px;
+    margin-bottom: 16px;
   }
-  .portfolio-bar {
+  /* 반원 게이지 범례 */
+  #portGaugeLegend {
     display: flex;
-    height: 12px;
-    border-radius: 6px;
-    overflow: hidden;
-    background: var(--bg4);
-    margin-bottom: 12px;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 120px;
   }
-  .portfolio-bar-seg {
-    height: 100%;
-    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    cursor: pointer;
-  }
-  .portfolio-bar-seg:hover {
-    filter: brightness(1.1);
-  }
-  .portfolio-bar-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
+  #portGaugeLegend .legend-item {
+    border-radius: 8px;
+    padding: 5px 10px;
   }
   .legend-item {
     display: flex;
@@ -1506,18 +1495,22 @@
   <!-- SUMMARY -->
   <div id="htsSummary" class="hts-bar"></div>
 
-  <!-- PORTFOLIO BAR + DONUT -->
+  <!-- PORTFOLIO GAUGE (반원 비중 게이지) -->
   <div class="portfolio-bar-wrap" id="portfolioBar" style="display:none">
-    <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
-      <div class="donut-wrap" style="width:140px;height:140px;flex-shrink:0;">
-        <div class="donut-chart" id="portDonut"></div>
-        <div class="donut-hole" style="width:60%;height:60%;"></div>
-      </div>
-      <div style="flex:1;min-width:160px;">
-        <div style="font-size:12px;color:var(--text3);margin-bottom:6px;">포트폴리오 비중</div>
-        <div class="portfolio-bar" id="portfolioBarSegs"></div>
-        <div class="portfolio-bar-legend" id="portfolioBarLegend"></div>
-      </div>
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+      <svg id="portGaugeSvg" viewBox="0 0 200 130" style="width:200px;height:130px;flex-shrink:0;" role="img" aria-label="포트폴리오 비중 게이지">
+        <!-- 배경 반원 (현금 영역) -->
+        <path d="M 10 108 A 90 90 0 0 1 190 108" fill="none" stroke="var(--bg4)" stroke-width="22" stroke-linecap="butt"/>
+        <!-- 주식 비중 호 (JS로 동적 생성) -->
+        <g id="portGaugeArcs"></g>
+        <!-- 총잔고 레이블 -->
+        <text id="portGaugeLabel" x="100" y="76" text-anchor="middle" font-size="10" fill="var(--text3)">총잔고</text>
+        <text id="portGaugeTotal" x="100" y="96" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text)">-</text>
+        <!-- 좌: 주식 / 우: 현금 -->
+        <text id="portGaugePctStock" x="10" y="126" text-anchor="start" font-size="9" fill="#388bfd">주식</text>
+        <text id="portGaugePctCash" x="190" y="126" text-anchor="end" font-size="9" fill="var(--text3)">현금</text>
+      </svg>
+      <div id="portGaugeLegend"></div>
     </div>
   </div>
 
@@ -3377,28 +3370,56 @@ function renderPortfolioBar() {
   const cash = getCashBalance();
   const cashBase = totalVal + cash;
   const cashPct = cashBase > 0 ? Math.max(0, cash / cashBase * 100) : 0;
-  const cashSeg = cashPct > 0 ? `<div class="portfolio-bar-seg" style="width:${cashPct}%;background:var(--bg4);border:1px dashed var(--border)" title="미투자 현금 ${cashPct.toFixed(1)}%"></div>` : '';
-  document.getElementById('portfolioBarSegs').innerHTML = segs.map(s =>
-    `<div class="portfolio-bar-seg" style="width:${s.w}%;background:${s.color}" title="${s.name} ${s.w.toFixed(1)}%"></div>`).join('') + cashSeg;
-  const cashLegend = cashPct > 0 ? `<div class="legend-item"><div class="legend-dot" style="background:var(--bg4);border:1px dashed var(--border)"></div>현금 ${cashPct.toFixed(1)}%</div>` : '';
-  document.getElementById('portfolioBarLegend').innerHTML = segs.map(s =>
-    `<div class="legend-item"><div class="legend-dot" style="background:${s.color}"></div>${s.name} ${s.w.toFixed(1)}%</div>`).join('') + cashLegend;
   renderPortfolioDonut(segs, cashPct, cash, cashBase);
 }
 
 function renderPortfolioDonut(segs, cashPct, cash, cashBase) {
-  const donutEl = document.getElementById('portDonut');
-  if (!donutEl) return;
-  if (!cashBase || cashBase <= 0) { donutEl.style.background = 'var(--bg4)'; return; }
-  let acc = 0;
-  const allSegs = [...segs];
-  if (cashPct > 0) allSegs.push({ color: 'var(--bg4)', w: cashPct });
-  const stops = allSegs.map(s => {
-    const start = acc;
-    acc += s.w;
-    return `${s.color} ${start.toFixed(2)}% ${acc.toFixed(2)}%`;
-  }).join(', ');
-  donutEl.style.background = `conic-gradient(${stops})`;
+  const arcsEl = document.getElementById('portGaugeArcs');
+  if (!arcsEl) return;
+  const r = 90, P = Math.PI * r; // 반원 둘레 ≈ 282.74
+  const totalStockPct = Math.max(0, 100 - cashPct);
+
+  // 종목별 호 그리기 (dasharray + dashoffset 기법)
+  let accPct = 0;
+  arcsEl.innerHTML = segs.map(s => {
+    const segPct = s.w * totalStockPct / 100; // cashBase 기준 비중
+    const start   = accPct / 100 * P;
+    const len     = segPct  / 100 * P;
+    accPct += segPct;
+    const dashOff = (len + P) - start; // 정확히 해당 구간만 표시
+    return `<path d="M 10 108 A 90 90 0 0 1 190 108" fill="none" stroke="${s.color}" stroke-width="22" stroke-linecap="butt" stroke-dasharray="${len.toFixed(2)} ${P.toFixed(2)}" stroke-dashoffset="${dashOff.toFixed(2)}"/>`;
+  }).join('');
+
+  // 중앙 총잔고
+  const totalEl = document.getElementById('portGaugeTotal');
+  if (totalEl) {
+    const v = cashBase;
+    totalEl.textContent = v >= 1e8 ? (v/1e8).toFixed(1)+'억'
+                        : v >= 1e4 ? Math.round(v/1e4).toLocaleString()+'만'
+                        : Math.round(v).toLocaleString()+'원';
+  }
+
+  // 좌(주식) / 우(현금) 레이블
+  const stockEl = document.getElementById('portGaugePctStock');
+  const cashEl  = document.getElementById('portGaugePctCash');
+  if (stockEl) {
+    stockEl.textContent = `주식 ${totalStockPct.toFixed(1)}%`;
+    stockEl.setAttribute('fill', segs.length ? segs[0].color : '#388bfd');
+  }
+  if (cashEl) cashEl.textContent = `현금 ${cashPct.toFixed(1)}%`;
+
+  // 우측 범례
+  const legend = document.getElementById('portGaugeLegend');
+  if (!legend) return;
+  const cashAmt = Math.max(0, cash);
+  const fmtAmt = v => v >= 1e8 ? (v/1e8).toFixed(1)+'억' : v >= 1e4 ? Math.round(v/1e4).toLocaleString()+'만' : Math.round(v).toLocaleString()+'원';
+  const cashLeg = cashPct > 0
+    ? `<div class="legend-item"><div class="legend-dot" style="background:var(--bg4);border:1px dashed var(--border)"></div><span>현금 ${cashPct.toFixed(1)}% <span style="color:var(--text3);font-size:10px;">₩${fmtAmt(cashAmt)}</span></span></div>`
+    : '';
+  legend.innerHTML = segs.map(s => {
+    const pct = cashBase > 0 ? (s.w * totalStockPct / 100).toFixed(1) : s.w.toFixed(1);
+    return `<div class="legend-item"><div class="legend-dot" style="background:${s.color}"></div><span>${s.name} ${pct}%</span></div>`;
+  }).join('') + cashLeg;
 }
 
 let prevPricesMap = {};
@@ -4946,4 +4967,116 @@ function saveCash() {
   showToast(type === 'deposit' ? `✅ 입금 ${fmt(amount)}원 기록` : `✅ 출금 ${fmt(amount)}원 기록`);
 }
 
-function dele
+function deleteCash(idx) {
+  if (!confirm('삭제할까요?')) return;
+  state.cashflows.splice(idx, 1);
+  save();
+  renderExsugeum();
+  renderSummary();
+  renderCashList();
+}
+
+function renderCashList() {
+  const tbody = document.getElementById('cashListBody');
+  if (!tbody) return;
+  const rows = (state.cashflows||[]);
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:18px;">내역 없음</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map((c, i) => `
+    <tr>
+      <td style="padding:6px 8px;font-size:13px;color:var(--text3);">${c.date}</td>
+      <td style="padding:6px 8px;font-size:13px;font-weight:600;color:${c.type==='deposit'?'var(--green)':'var(--red)'};">${c.type==='deposit'?'입금':'출금'}</td>
+      <td style="padding:6px 8px;font-size:13px;text-align:right;font-weight:700;">${fmt(c.amount)}원</td>
+      <td style="padding:6px 8px;font-size:12px;color:var(--text3);">${c.memo||''}
+        <button onclick="deleteCash(${i})" style="float:right;background:none;border:none;cursor:pointer;color:var(--text3);font-size:13px;" title="삭제">🗑</button>
+      </td>
+    </tr>`).join('');
+}
+
+// ESC 키로 모달 닫기
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const sm = document.getElementById('settingsModal');
+    if (sm && sm.classList.contains('open')) { closeSettings(); return; }
+  }
+});
+
+// 서비스워커 등록 (PWA)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+
+<!-- 설정 모달 -->
+<div id="settingsModal" onclick="if(event.target===this)closeSettings()">
+  <div class="settings-panel">
+    <div class="settings-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      설정
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-label">테마</div>
+      <div class="theme-option-group">
+        <button class="theme-option-btn" id="themeOptSystem" onclick="setTheme('system')" title="시스템 설정에 따름">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          시스템 자동
+        </button>
+        <button class="theme-option-btn" id="themeOptLight" onclick="setTheme('light')" title="항상 라이트 모드">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          라이트
+        </button>
+        <button class="theme-option-btn" id="themeOptDark" onclick="setTheme('dark')" title="항상 다크 모드">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          다크
+        </button>
+      </div>
+    </div>
+
+    <div class="settings-close-row">
+      <button class="btn btn-ghost" onclick="closeSettings()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 입금/출금 모달 -->
+<div id="cashModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000;align-items:center;justify-content:center;">
+  <div style="width:480px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;border-radius:12px;background:var(--bg2);border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,.2);">
+    <div style="padding:18px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:17px;font-weight:700;">💰 예수금 관리</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="font-size:13px;color:var(--text3);">현재 예수금 <span id="cashModalBalance" style="font-weight:700;"></span></div>
+        <button onclick="openCashManualModal()" style="padding:4px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--text2);font-size:12px;" title="입출금 내역 대신 실제 예수금을 직접 입력">✏️ 직접 입력</button>
+        <button onclick="closeCashModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text3);">✕</button>
+      </div>
+    </div>
+    <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <select id="cf_type" style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--bg);color:var(--text);">
+        <option value="deposit">📥 입금</option>
+        <option value="withdraw">📤 출금</option>
+      </select>
+      <input id="cf_date" type="date" style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--bg);color:var(--text);">
+      <input id="cf_amount" type="number" placeholder="금액 (원)" style="flex:1;min-width:110px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--bg);color:var(--text);">
+      <input id="cf_memo" type="text" placeholder="메모" style="flex:1;min-width:90px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--bg);color:var(--text);">
+      <button onclick="saveCash()" style="padding:7px 16px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;">추가</button>
+    </div>
+    <div style="overflow-y:auto;flex:1;padding:4px 0;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="background:var(--bg3);">
+          <th style="padding:8px;font-size:12px;text-align:left;color:var(--text3);font-weight:600;">날짜</th>
+          <th style="padding:8px;f
+          <th style="padding:8px;font-size:12px;text-align:left;color:var(--text3);font-weight:600;">구분</th>
+          <th style="padding:8px;font-size:12px;text-align:right;color:var(--text3);font-weight:600;">금액</th>
+          <th style="padding:8px;font-size:12px;color:var(--text3);font-weight:600;">메모</th>
+        </tr></thead>
+        <tbody id="cashListBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>
