@@ -1500,15 +1500,15 @@
     <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
       <svg id="portGaugeSvg" viewBox="0 0 200 130" style="width:200px;height:130px;flex-shrink:0;" role="img" aria-label="포트폴리오 비중 게이지">
         <!-- 배경 반원 (현금 영역) -->
-        <path d="M 10 108 A 90 90 0 0 1 190 108" fill="none" stroke="var(--bg4)" stroke-width="22" stroke-linecap="butt"/>
+        <path d="M 14 108 A 86 86 0 0 1 186 108" fill="none" stroke="var(--bg4)" stroke-width="28" stroke-linecap="butt"/>
         <!-- 주식 비중 호 (JS로 동적 생성) -->
         <g id="portGaugeArcs"></g>
         <!-- 총잔고 레이블 -->
-        <text id="portGaugeLabel" x="100" y="76" text-anchor="middle" font-size="10" fill="var(--text3)">총잔고</text>
-        <text id="portGaugeTotal" x="100" y="96" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text)">-</text>
+        <text id="portGaugeLabel" x="100" y="74" text-anchor="middle" font-size="10" fill="var(--text3)">총잔고</text>
+        <text id="portGaugeTotal" x="100" y="93" text-anchor="middle" font-size="16" font-weight="700" fill="var(--text)">-</text>
         <!-- 좌: 주식 / 우: 현금 -->
-        <text id="portGaugePctStock" x="10" y="126" text-anchor="start" font-size="9" fill="#388bfd">주식</text>
-        <text id="portGaugePctCash" x="190" y="126" text-anchor="end" font-size="9" fill="var(--text3)">현금</text>
+        <text id="portGaugePctStock" x="14" y="127" text-anchor="start" font-size="12" fill="#388bfd">주식</text>
+        <text id="portGaugePctCash" x="186" y="127" text-anchor="end" font-size="12" fill="var(--text3)">현금</text>
       </svg>
       <div id="portGaugeLegend"></div>
     </div>
@@ -3376,7 +3376,7 @@ function renderPortfolioBar() {
 function renderPortfolioDonut(segs, cashPct, cash, cashBase) {
   const arcsEl = document.getElementById('portGaugeArcs');
   if (!arcsEl) return;
-  const r = 90, P = Math.PI * r; // 반원 둘레 ≈ 282.74
+  const r = 86, P = Math.PI * r; // 반원 둘레 ≈ 270.18
   const totalStockPct = Math.max(0, 100 - cashPct);
 
   // 종목별 호 그리기 (dasharray + dashoffset 기법)
@@ -3387,7 +3387,7 @@ function renderPortfolioDonut(segs, cashPct, cash, cashBase) {
     const len     = segPct  / 100 * P;
     accPct += segPct;
     const dashOff = (len + P) - start; // 정확히 해당 구간만 표시
-    return `<path d="M 10 108 A 90 90 0 0 1 190 108" fill="none" stroke="${s.color}" stroke-width="22" stroke-linecap="butt" stroke-dasharray="${len.toFixed(2)} ${P.toFixed(2)}" stroke-dashoffset="${dashOff.toFixed(2)}"/>`;
+    return `<path d="M 14 108 A 86 86 0 0 1 186 108" fill="none" stroke="${s.color}" stroke-width="28" stroke-linecap="butt" stroke-dasharray="${len.toFixed(2)} ${P.toFixed(2)}" stroke-dashoffset="${dashOff.toFixed(2)}"/>`;
   }).join('');
 
   // 중앙 총잔고
