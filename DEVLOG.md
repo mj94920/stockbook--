@@ -1,7 +1,7 @@
 # StockBook — 개발 작업 로그
 
-**최종 업데이트**: 2026-07-03  
-**현재 버전**: 1.4.0  
+**최종 업데이트**: 2026-07-04  
+**현재 버전**: 1.4.1  
 **GitHub**: https://github.com/mj94920/stockbook--  
 **배포 URL**: https://mj94920.github.io/stockbook--/주식포트폴리오관리.html
 
@@ -218,7 +218,57 @@ StockBook-PWA/
 
 ---
 
-### v1.4.0 (2026-07-03) — 현재
+### v1.4.1 (2026-07-04) — 현재
+
+**커밋**: `aef6b11` → `c532a3a`
+
+#### 시세 조회 — Electron IPC 방식으로 CORS 완전 해결
+
+- **문제**: Electron은 `file://`에서 로드되므로 `Origin: null` → corsproxy.io 차단
+- **해결**: `ipcMain.handle('fetch-quote', ...)` → Node.js `https` 모듈로 직접 요청 (CORS 없음)
+- **흐름**: 한국주식 `Naver m.stock API` → Yahoo Finance v7 `.KS`/`.KQ` fallback
+- **국제주식**: Yahoo Finance v7 `/v7/finance/quote?symbols=` (실시간 스냅샷)
+- `preload.js`에 `fetchQuote` IPC 노출, HTML에서 `window.electronAPI?.fetchQuote` 감지
+
+#### Yahoo Finance v7 quote API로 교체
+
+- **문제**: v8 chart API가 한국 종목에 대해 수개월 전 가격 반환
+- **해결**: `/v7/finance/quote?symbols=TICKER` — `regularMarketPrice` 실시간 값 사용
+- query1 → query2 fallback 적용
+
+#### 아이콘 최신 디자인 재생성
+
+- `logo.svg` (캔들 4개 + 우상향 초록 화살표, 딥네이비 `#0d1f3c` 배경) 기준으로 재생성
+- `icon-192.png` (5,523 bytes), `icon-512.png` (15,781 bytes) 갱신
+
+#### 모바일 인트로 화면 추가
+
+- standalone PWA/TWA 실행 시 풀스크린 인트로 오버레이 표시 (1.6초 후 페이드아웃)
+- `icon-192.png` + "Stock Book Mobile" + "v1.4.1" 텍스트
+- `display-mode: standalone` 또는 `navigator.standalone` 감지
+
+#### 뉴스탭 — 네이버 금융 뉴스 버튼 삭제
+
+- 실용성 낮은 네이버 금융 뉴스 링크 버튼 제거
+
+#### 라이트모드 팝업 배경 수정
+
+- `.modal { background: rgba(17,24,39,0.55) }` → `var(--bg2)` (다크/라이트 CSS 변수 기반)
+- 라이트모드 전용 shadow 오버라이드 추가
+
+#### 앱 시작 시 잔고 탭을 기본으로 표시
+
+- 기존: 매수등록 탭이 기본 (모바일만 잔고로 초기화)
+- 변경: 항상 잔고 요약 탭(`stab-balance`)으로 시작 (PC/모바일 공통)
+- HTML `active` 클래스 및 초기화 JS 동시 수정
+
+#### 설정 패널 버전 표기 추가
+
+- 설정 모달 하단에 "Stock Book v1.4.1" 표시
+
+---
+
+### v1.4.0 (2026-07-03)
 
 #### 파일 복구 (치명적 손상 복원)
 
