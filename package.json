@@ -11,6 +11,7 @@
     "appId": "com.mj.stockbook",
     "productName": "Stock Book",
     "electronVersion": "31.7.7",
+    "asar": false,
     "directories": {
       "output": "C:\\Temp\\StockBookBuild"
     },

@@ -170,6 +170,13 @@ ipcMain.handle('show-confirm', async (_event, message) => {
 
 // ── 창 생성 ──────────────────────────────────────────────────────────────────
 function createWindow() {
+  // 한글 파일명 Electron 로드 이슈 우회: 임시 ASCII 경로에 복사 후 로드
+  const srcHtml = path.join(__dirname, '주식포트폴리오관리.html');
+  const tmpHtml = path.join(app.getPath('temp'), 'stockbook-app.html');
+  try { fs.copyFileSync(srcHtml, tmpHtml); } catch (e) {
+    console.error('[StockBook] HTML 복사 실패:', e);
+  }
+
   win = new BrowserWindow({
     width:     1440,
     height:    920,
@@ -186,7 +193,7 @@ function createWindow() {
     }
   });
 
-  win.loadFile(path.join(__dirname, '주식포트폴리오관리.html'));
+  win.loadFile(tmpHtml);
   win.setMenuBarVisibility(false);
   win.once('ready-to-show', () => win.show()); // 렌더링 완료 후 창 표시
 
