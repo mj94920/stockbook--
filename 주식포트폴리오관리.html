@@ -464,6 +464,8 @@
     gap: 6px;
     flex: 1;
     min-width: 120px;
+    max-height: 118px;
+    overflow-y: auto;
   }
   #portGaugeLegend .legend-item {
     border-radius: 8px;
@@ -2528,13 +2530,8 @@ const YF_BASE = 'https://query1.finance.yahoo.com';
 
 // 한국 종목 전용 — 네이버 금융 모바일 API (6자리 코드, 코스피/코스닥 자동 구분)
 async function fetchNaverQuote(code) {
-  try {
-    const res = await fetch(
-      `https://m.stock.naver.com/api/stock/${code}/basic`,
-      { method: 'GET', credentials: 'omit' }
-    );
-    if (!res.ok) return null;
-    const d = await res.json();
+  const naverUrl = `https://m.stock.naver.com/api/stock/${code}/basic`;
+  const parseNaver = d => {
     const price  = parseFloat((d.closePrice  || '0').replace(/,/g, ''));
     const change = parseFloat((d.compareToPreviousClosePrice || '0').replace(/,/g, ''));
     const openP  = parseFloat((d.openPrice   || '0').replace(/,/g, ''));
@@ -2546,18 +2543,32 @@ async function fetchNaverQuote(code) {
       openPrice: openP || null,
       currency:  'KRW',
     };
+  };
+  // 1) 직접 접속
+  try {
+    const res = await fetch(naverUrl, { method: 'GET', credentials: 'omit' });
+    if (res.ok) {
+      const result = parseNaver(await res.json());
+      if (result) return result;
+    }
+  } catch (_) { /* CORS — try proxy */ }
+  // 2) CORS 프록시 fallback
+  try {
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(naverUrl)}`;
+    const res = await fetch(proxyUrl, { method: 'GET' });
+    if (!res.ok) return null;
+    return parseNaver(await res.json());
   } catch (_) { return null; }
 }
 
-// 해외 종목 전용 — 야후 파이낸스
+// 해외 종목 전용 — 야후 파이낸스 (query1 → query2 → CORS프록시 순 fallback)
 async function fetchYFQuoteIntl(ticker) {
-  try {
-    const res = await fetch(
-      `${YF_BASE}/v8/finance/chart/${encodeURIComponent(ticker)}?range=1d&interval=1d&includePrePost=false`,
-      { method: 'GET', credentials: 'omit' }
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
+  const path = `/v8/finance/chart/${encodeURIComponent(ticker)}?range=1d&interval=1d&includePrePost=false`;
+  const endpoints = [
+    `https://query1.finance.yahoo.com${path}`,
+    `https://query2.finance.yahoo.com${path}`,
+  ];
+  const parseYF = data => {
     const meta = data?.chart?.result?.[0]?.meta;
     if (!meta || !meta.regularMarketPrice) return null;
     return {
@@ -2567,6 +2578,22 @@ async function fetchYFQuoteIntl(ticker) {
       openPrice: meta.regularMarketOpen ?? null,
       currency:  meta.currency ?? 'USD',
     };
+  };
+  // 1) 직접 접속 (query1, query2)
+  for (const url of endpoints) {
+    try {
+      const res = await fetch(url, { method: 'GET', credentials: 'omit' });
+      if (!res.ok) continue;
+      const result = parseYF(await res.json());
+      if (result) return result;
+    } catch (_) { /* CORS or network — try next */ }
+  }
+  // 2) CORS 프록시 fallback
+  try {
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(endpoints[0])}`;
+    const res = await fetch(proxyUrl, { method: 'GET' });
+    if (!res.ok) return null;
+    return parseYF(await res.json());
   } catch (_) { return null; }
 }
 
