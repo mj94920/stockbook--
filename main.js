@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
-const path = require('path');
-const fs   = require('fs');
+const path  = require('path');
+const fs    = require('fs');
+const https = require('https');
 
 let win;
 
@@ -8,6 +9,96 @@ let win;
 function getDataFile() {
   return path.join(app.getPath('userData'), 'stockbook-data.json');
 }
+
+// ── 내부 HTTPS 헬퍼 (CORS 제한 없음) ────────────────────────────────────────
+function httpsGet(url, timeoutMs = 8000) {
+  return new Promise((resolve, reject) => {
+    const req = https.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+        'Accept':     'application/json, text/plain, */*',
+      }
+    }, res => {
+      let body = '';
+      res.on('data', chunk => { body += chunk; });
+      res.on('end',  () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) resolve(body);
+        else reject(new Error(`HTTP ${res.statusCode}`));
+      });
+    });
+    req.on('error', reject);
+    req.setTimeout(timeoutMs, () => { req.destroy(); reject(new Error('Timeout')); });
+  });
+}
+
+// ── IPC: 시세 조회 (main 프로세스에서 직접 요청 → CORS 없음) ────────────────
+ipcMain.handle('fetch-quote', async (_event, rawTicker) => {
+  if (!rawTicker) return null;
+  rawTicker = rawTicker.trim();
+  const isKrNum = /^\d{6}$/.test(rawTicker);
+
+  const parseYF = (body, symbol) => {
+    try {
+      const d    = JSON.parse(body);
+      const meta = d?.chart?.result?.[0]?.meta;
+      if (!meta?.regularMarketPrice) return null;
+      return {
+        symbol,
+        price:     meta.regularMarketPrice,
+        prevClose: meta.previousClose ?? meta.chartPreviousClose ?? null,
+        openPrice: meta.regularMarketOpen ?? null,
+        currency:  meta.currency ?? 'USD',
+      };
+    } catch (_) { return null; }
+  };
+
+  if (isKrNum) {
+    // 1) 네이버 금융 (국내 전용, 가장 정확)
+    try {
+      const body = await httpsGet(`https://m.stock.naver.com/api/stock/${rawTicker}/basic`);
+      const d    = JSON.parse(body);
+      const price  = parseFloat((d.closePrice                 || '0').replace(/,/g, ''));
+      const change = parseFloat((d.compareToPreviousClosePrice || '0').replace(/,/g, ''));
+      const openP  = parseFloat((d.openPrice                  || '0').replace(/,/g, ''));
+      if (price) return {
+        symbol:    rawTicker,
+        price,
+        prevClose: Math.round((price - change) * 100) / 100,
+        openPrice: openP || null,
+        currency:  'KRW',
+      };
+    } catch (_) { /* 네이버 실패 시 야후 폴백 */ }
+
+    // 2) 야후 파이낸스 .KS / .KQ
+    for (const suffix of ['.KS', '.KQ']) {
+      const sym = rawTicker + suffix;
+      try {
+        const body = await httpsGet(
+          `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=1d&includePrePost=false`
+        );
+        const result = parseYF(body, sym);
+        if (result) return { ...result, currency: result.currency || 'KRW' };
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  // 해외 종목
+  const sym = rawTicker.toUpperCase();
+  try {
+    const body = await httpsGet(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=1d&includePrePost=false`
+    );
+    return parseYF(body, sym);
+  } catch (_) {}
+  try {
+    const body = await httpsGet(
+      `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=1d&includePrePost=false`
+    );
+    return parseYF(body, sym);
+  } catch (_) {}
+  return null;
+});
 
 // ── IPC 핸들러 ──────────────────────────────────────────────────────────────
 ipcMain.handle('load-state', async () => {

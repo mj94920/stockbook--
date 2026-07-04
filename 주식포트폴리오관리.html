@@ -2597,25 +2597,27 @@ async function fetchYFQuoteIntl(ticker) {
   } catch (_) { return null; }
 }
 
-// 통합 조회 — 한국 6자리는 네이버 우선, 실패 시 야후 / 해외는 야후 직접
+// 통합 조회 — Electron: IPC(CORS 없음) 우선 / PWA: 웹 fetch 사용
 async function fetchYFQuote(rawTicker) {
   if (!rawTicker) return null;
   rawTicker = rawTicker.trim();
-  const isKrNum = /^\d{6}$/.test(rawTicker);
 
+  // Electron 환경: main 프로세스에서 직접 요청 (CORS 제한 없음)
+  if (window.electronAPI?.fetchQuote) {
+    return await window.electronAPI.fetchQuote(rawTicker);
+  }
+
+  // PWA/브라우저 환경: 웹 fetch (CORS 프록시 폴백 포함)
+  const isKrNum = /^\d{6}$/.test(rawTicker);
   if (isKrNum) {
-    // 네이버 금융으로 먼저 시도 (코스피/코스닥 자동 구분, 정확도 높음)
     const naver = await fetchNaverQuote(rawTicker);
     if (naver) return naver;
-    // 네이버 CORS 차단 시 야후 파이낸스로 폴백
     for (const suffix of ['.KS', '.KQ']) {
       const yf = await fetchYFQuoteIntl(rawTicker + suffix);
       if (yf) return yf;
     }
     return null;
   }
-
-  // 해외 종목 (AAPL, TSLA 등)
   return fetchYFQuoteIntl(rawTicker.toUpperCase());
 }
 
