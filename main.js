@@ -171,7 +171,7 @@ ipcMain.handle('show-confirm', async (_event, message) => {
 // ── 창 생성 ──────────────────────────────────────────────────────────────────
 function createWindow() {
   // HTML 파일을 임시 ASCII 경로에 복사 후 로드 (Electron 파일 로드 안정성)
-  const srcHtml = path.join(__dirname, 'Stock Book.html');
+  const srcHtml = path.join(__dirname, 'index.html');
   const tmpHtml = path.join(app.getPath('temp'), 'stockbook-app.html');
   try { fs.copyFileSync(srcHtml, tmpHtml); } catch (e) {
     console.error('[StockBook] HTML 복사 실패:', e);
