@@ -1301,19 +1301,35 @@
     }
   }
 
-  /* ── 모바일 포트폴리오 테이블: 종목명 + 관리 컬럼만 표시 (768px 이하) ── */
+  /* ── 모바일 포트폴리오 테이블: 종목명 + 평균단가 + 현재가 + 관리만 표시 (768px 이하) ── */
   @media (max-width: 768px) {
-    /* 구분·보유량·주문가능·단가·금액·비중 등 중간 컬럼 모두 숨기기 */
-    .portfolio-table thead th:not(:first-child):not(.col-action),
-    .portfolio-table tbody tr:not(.sub-row) td:not(:first-child):not(.col-action) {
+    /* 구분·보유량·주문가능·매입금액·평가금액·손익·수익률·비중 숨기기 (평균단가·현재가는 유지) */
+    .portfolio-table thead th:not(:first-child):not(.col-action):not(:nth-child(5)):not(:nth-child(6)),
+    .portfolio-table tbody tr:not(.sub-row) td:not(:first-child):not(.col-action):not(:nth-child(5)):not(:nth-child(6)) {
       display: none;
     }
-    /* 관리 열: 2컬럼만 남으므로 sticky·shadow 불필요 */
+    /* 컬럼 너비 축소 — 4컬럼이 전화기 화면에 맞도록 */
+    .portfolio-table th:first-child,
+    .portfolio-table td:first-child {
+      min-width: 75px !important;
+    }
+    .portfolio-table thead th:nth-child(5),
+    .portfolio-table thead th:nth-child(6),
+    .portfolio-table tbody td:nth-child(5),
+    .portfolio-table tbody td:nth-child(6) {
+      min-width: 62px !important;
+      font-size: 12px;
+      text-align: right;
+    }
+    /* 관리 열: sticky·shadow 불필요, 버튼 간격 최소화 */
     .portfolio-table th.col-action,
     .portfolio-table td.col-action {
       position: static !important;
       box-shadow: none !important;
-      min-width: 150px !important;
+      min-width: 135px !important;
+    }
+    .portfolio-table .hts-action-btn {
+      padding: 4px 5px !important;
     }
   }
 
@@ -5268,4 +5284,19 @@ if ('serviceWorker' in navigator) {
       <input id="cf_memo" type="text" placeholder="메모" style="flex:1;min-width:90px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--bg);color:var(--text);">
       <button onclick="saveCash()" style="padding:7px 16px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;">추가</button>
     </div>
-    <div style="overflow-y:auto;flex:1;paddin
+    <div style="overflow-y:auto;flex:1;padding:4px 0;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="background:var(--bg3);">
+          <th style="padding:8px;font-size:12px;text-align:left;color:var(--text3);font-weight:600;">날짜</th>
+          <th style="padding:8px;f
+          <th style="padding:8px;font-size:12px;text-align:left;color:var(--text3);font-weight:600;">구분</th>
+          <th style="padding:8px;font-size:12px;text-align:right;color:var(--text3);font-weight:600;">금액</th>
+          <th style="padding:8px;font-size:12px;color:var(--text3);font-weight:600;">메모</th>
+        </tr></thead>
+        <tbody id="cashListBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>
