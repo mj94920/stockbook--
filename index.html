@@ -1301,6 +1301,22 @@
     }
   }
 
+  /* ── 모바일 포트폴리오 테이블: 종목명 + 관리 컬럼만 표시 (768px 이하) ── */
+  @media (max-width: 768px) {
+    /* 구분·보유량·주문가능·단가·금액·비중 등 중간 컬럼 모두 숨기기 */
+    .portfolio-table thead th:not(:first-child):not(.col-action),
+    .portfolio-table tbody tr:not(.sub-row) td:not(:first-child):not(.col-action) {
+      display: none;
+    }
+    /* 관리 열: 2컬럼만 남으므로 sticky·shadow 불필요 */
+    .portfolio-table th.col-action,
+    .portfolio-table td.col-action {
+      position: static !important;
+      box-shadow: none !important;
+      min-width: 150px !important;
+    }
+  }
+
   /* ── 모바일 브라우저 URL바 자동 숨기기 — body 여유 높이 ── */
   /* Chrome/Whale 등은 스크롤 시 URL바 숨김. body를 URL바 높이만큼 크게 해서 트리거 */
   @media (max-width: 1100px) {
@@ -1531,7 +1547,7 @@
   </div>
   <div id="mobileIntroText">
     <h1>Stock Book Mobile</h1>
-    <p>v1.4.1</p>
+    <p>v1.4.3</p>
   </div>
 </div>
 
@@ -3421,16 +3437,15 @@ function switchSubTab(name) {
   const activeBtn = document.querySelector(`.sub-tab-btn[data-tab="${name}"]`);
   if (activeBtn) activeBtn.classList.add('active');
 
-  if (name === 'balance' && isMobile) {
-    htsLeft.classList.add('mobile-show');
-    subTabBody.style.display = 'none';
-    renderPortfolio();
-    return;
-  }
-
   if (isMobile) {
-    htsLeft.classList.remove('mobile-show');
-    subTabBody.style.display = '';
+    // 잔고 탭: 포트폴리오 테이블(hts-left)도 함께 표시
+    if (name === 'balance') {
+      htsLeft.classList.add('mobile-show');
+      renderPortfolio();
+    } else {
+      htsLeft.classList.remove('mobile-show');
+    }
+    subTabBody.style.display = 'block';
   }
 
   document.querySelectorAll('.sub-tab-panel').forEach(p => p.classList.remove('active'));
@@ -5228,7 +5243,7 @@ if ('serviceWorker' in navigator) {
     <div class="settings-close-row">
       <button class="btn btn-ghost" onclick="closeSettings()">닫기</button>
     </div>
-    <div style="text-align:center;font-size:11px;color:var(--text3);padding:8px 0 2px;opacity:0.6;">Stock Book v1.4.1</div>
+    <div style="text-align:center;font-size:11px;color:var(--text3);padding:8px 0 2px;opacity:0.6;">Stock Book v1.4.3</div>
   </div>
 </div>
 
@@ -5253,19 +5268,4 @@ if ('serviceWorker' in navigator) {
       <input id="cf_memo" type="text" placeholder="메모" style="flex:1;min-width:90px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--bg);color:var(--text);">
       <button onclick="saveCash()" style="padding:7px 16px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;">추가</button>
     </div>
-    <div style="overflow-y:auto;flex:1;padding:4px 0;">
-      <table style="width:100%;border-collapse:collapse;">
-        <thead><tr style="background:var(--bg3);">
-          <th style="padding:8px;font-size:12px;text-align:left;color:var(--text3);font-weight:600;">날짜</th>
-          <th style="padding:8px;f
-          <th style="padding:8px;font-size:12px;text-align:left;color:var(--text3);font-weight:600;">구분</th>
-          <th style="padding:8px;font-size:12px;text-align:right;color:var(--text3);font-weight:600;">금액</th>
-          <th style="padding:8px;font-size:12px;color:var(--text3);font-weight:600;">메모</th>
-        </tr></thead>
-        <tbody id="cashListBody"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-</body>
-</html>
+    <div style="overflow-y:auto;flex:1;paddin
