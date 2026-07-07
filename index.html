@@ -5393,11 +5393,23 @@ async function openAnalysisDrawer(idx) {
   const body = document.getElementById('analysisDrawerBody');
   body.innerHTML = `<div style="text-align:center;padding:50px 20px;color:var(--text3)"><div class="analysis-spinner" style="margin:0 auto 14px"></div><div>데이터 불러오는 중...</div></div>`;
 
-  // Yahoo Finance 재무 데이터 조회
-  let yfData = null;
-  try { yfData = await _fetchYFSummary(stock.ticker); } catch (_) {}
+  const ticker  = stock.ticker || '';
+  const isKr    = /^\d{6}$/.test(ticker.trim());
+  const isElec  = !!window.electronAPI;
 
-  _renderAnalysisBody(body, stock, yfData);
+  let naverData = null;
+  let yfData    = null;
+
+  if (isKr && isElec) {
+    // 데스크탑 + 한국 주식 → 네이버 금융 IPC
+    try { naverData = await window.electronAPI.fetchNaverFinance(ticker.trim()); } catch (_) {}
+  }
+  if (!naverData) {
+    // 모바일이거나 해외 주식 → Yahoo Finance 폴백
+    try { yfData = await _fetchYFSummary(ticker); } catch (_) {}
+  }
+
+  _renderAnalysisBody(body, stock, naverData, yfData);
 }
 
 function closeAnalysisDrawer() {
@@ -5453,7 +5465,7 @@ async function _fetchYFSummary(ticker) {
   return null;
 }
 
-function _renderAnalysisBody(body, stock, yf) {
+function _renderAnalysisBody(body, stock, naverData, yf) {
   const isElectron = !!window.electronAPI;
   const ticker  = stock.ticker || '';
   const isKr    = /^\d{6}$/.test(ticker.trim());
@@ -5507,10 +5519,13 @@ function _renderAnalysisBody(body, stock, yf) {
     </div>
   </div>`;
 
-  // ── 2. 재무 데이터 (Yahoo Finance 성공 시) ──────────────────
+  // ── 2. 재무 데이터 ───────────────────────────────────────────
   let finSection = '';
-  if (!yf) {
-    const naverLink = isKr
+  const hasData = !!(naverData || yf);
+
+  if (!hasData) {
+    // 데이터 없음 (모바일 등)
+    const extLink = isKr
       ? `<a href="https://finance.naver.com/item/main.naver?code=${ticker}" target="_blank" class="analysis-ext-link">📊 네이버 금융에서 확인하기 →</a>`
       : `<a href="https://finance.yahoo.com/quote/${ticker}" target="_blank" class="analysis-ext-link">📊 Yahoo Finance에서 확인하기 →</a>`;
     finSection = `<div class="analysis-section">
@@ -5518,59 +5533,125 @@ function _renderAnalysisBody(body, stock, yf) {
         <div style="font-size:22px;margin-bottom:8px;">📡</div>
         <div style="font-weight:700;margin-bottom:6px;font-size:15px;">재무 데이터를 불러올 수 없습니다</div>
         <div style="font-size:13px;color:var(--text3);margin-bottom:16px;line-height:1.6">
-          ${!isElectron
-            ? 'TWA(안드로이드) 환경에서는 외부 API 접근이 제한될 수 있습니다.<br>아래 링크로 직접 확인해 주세요.'
-            : 'Yahoo Finance에서 데이터를 가져오지 못했습니다. 티커가 올바른지 확인해 주세요.'}
-        </div>
-        ${naverLink}
+          ${!isElectron ? '모바일 환경에서는 외부 API 접근이 제한됩니다.<br>아래 링크로 직접 확인해 주세요.' : '데이터를 가져오지 못했습니다. 티커를 확인해 주세요.'}
+        </div>${extLink}
       </div>
     </div>`;
-  } else {
-    const perCls  = (yf.per != null && yf.per < 15) ? 'good' : (yf.per != null && yf.per > 30) ? 'warn' : '';
-    const roeCls  = (yf.roe != null && yf.roe > 0.15) ? 'good' : (yf.roe != null && yf.roe < 0) ? 'warn' : '';
-    const deCls   = (yf.debtToEquity != null && yf.debtToEquity > 200) ? 'warn' : '';
-    const netCls  = (yf.netMargin != null && yf.netMargin > 0.1) ? 'good' : (yf.netMargin != null && yf.netMargin < 0) ? 'warn' : '';
-    const pbrCls  = (yf.pbr != null && yf.pbr < 1) ? 'good' : '';
+
+  } else if (naverData) {
+    // ── 네이버 금융 데이터 (데스크탑 + 한국 주식) ──
+    const ann   = naverData.annual;
+    const rows  = ann?.financeInfo?.rowList || [];
+    const titles = ann?.financeInfo?.trTitleList || [];
+    const corp  = ann?.corporationSummary;
+
+    // rowList를 key→{연도:값} 맵으로 변환
+    const getRow = (name) => rows.find(r => r.title === name);
+    const getVal = (row, key) => row?.columns?.[key]?.value || '-';
+
+    // 최신 연도(컨센서스 제외) 가져오기
+    const realYears = titles.filter(t => t.isConsensus === 'N');
+    const latestKey = realYears[realYears.length - 1]?.key;
+
+    const latestPER = getVal(getRow('PER'), latestKey);
+    const latestPBR = getVal(getRow('PBR'), latestKey);
+    const latestROE = getVal(getRow('ROE'), latestKey);
+    const latestDE  = getVal(getRow('부채비율'), latestKey);
+    const latestOPM = getVal(getRow('영업이익률'), latestKey);
+    const latestNPM = getVal(getRow('순이익률'), latestKey);
+    const latestEPS = getVal(getRow('EPS'), latestKey);
+    const latestBPS = getVal(getRow('BPS'), latestKey);
+    const latestDIV = getVal(getRow('주당배당금'), latestKey);
+
+    const numVal = (s) => parseFloat((s||'').replace(/,/g,''));
+    const perN   = numVal(latestPER);
+    const roeN   = numVal(latestROE);
+    const deN    = numVal(latestDE);
+
+    const perCls = (!isNaN(perN) && perN > 0 && perN < 15) ? 'good' : (!isNaN(perN) && perN > 30) ? 'warn' : '';
+    const roeCls = (!isNaN(roeN) && roeN > 15) ? 'good' : (!isNaN(roeN) && roeN < 0) ? 'warn' : '';
+    const deCls  = (!isNaN(deN)  && deN > 200)  ? 'warn' : '';
+
+    // 연간 실적 테이블 (매출 / 영업이익 / 당기순이익)
+    const annualTableRows = realYears.map(t => `<tr>
+      <td>${t.title}</td>
+      <td>${getVal(getRow('매출액'), t.key)}</td>
+      <td class="${numVal(getVal(getRow('영업이익'),t.key))>0?'up':'dn'}">${getVal(getRow('영업이익'), t.key)}</td>
+      <td class="${numVal(getVal(getRow('당기순이익'),t.key))>0?'up':'dn'}">${getVal(getRow('당기순이익'), t.key)}</td>
+      <td>${getVal(getRow('영업이익률'), t.key)}%</td>
+      <td>${getVal(getRow('ROE'), t.key)}%</td>
+    </tr>`).join('');
+
+    // 기업 요약
+    const corpSummary = corp ? `<div class="analysis-section">
+      <div class="analysis-section-title">🏢 기업 요약</div>
+      <div style="font-size:13px;line-height:1.8;color:var(--text2)">
+        ${[corp.comment1, corp.comment2, corp.comment3].filter(Boolean).map(c=>`<p style="margin:0 0 6px">${c}</p>`).join('')}
+      </div>
+    </div>` : '';
+
+    // AI 코멘트
+    const comments = _buildCommentsNaver(perN, roeN, deN, numVal(latestNPM));
 
     finSection = `
+    ${corpSummary}
     <div class="analysis-section">
-      <div class="analysis-section-title">📊 기업 기본 정보</div>
+      <div class="analysis-section-title">📊 핵심 투자지표 <span style="font-size:11px;color:var(--text3);font-weight:400">(${realYears[realYears.length-1]?.title || ''} 기준)</span></div>
       <div class="analysis-metric-grid">
-        ${mCard('시가총액', fBig(yf.marketCap))}
-        ${mCard('PER (TTM)', yf.per != null ? fNum(yf.per,1)+'배' : 'N/A', yf.forwardPer ? `선행 ${fNum(yf.forwardPer,1)}배` : '', perCls)}
-        ${mCard('PBR', yf.pbr != null ? fNum(yf.pbr,2)+'배' : 'N/A', '', pbrCls)}
-        ${mCard('ROE', fPct(yf.roe), '', roeCls)}
-        ${mCard('부채비율', yf.debtToEquity != null ? fNum(yf.debtToEquity,0)+'%' : 'N/A', '', deCls)}
-        ${mCard('순이익률', fPct(yf.netMargin), '', netCls)}
-        ${mCard('배당수익률', fPct(yf.divYield))}
-        ${mCard('52주 등락', yf.w52Change != null ? (yf.w52Change>0?'+':'')+fPct(yf.w52Change) : 'N/A', '', yf.w52Change>0?'good':yf.w52Change<-0.2?'warn':'')}
+        ${mCard('PER', latestPER !== '-' ? latestPER+'배' : 'N/A', '', perCls)}
+        ${mCard('PBR', latestPBR !== '-' ? latestPBR+'배' : 'N/A')}
+        ${mCard('ROE', latestROE !== '-' ? latestROE+'%' : 'N/A', '', roeCls)}
+        ${mCard('부채비율', latestDE !== '-' ? latestDE+'%' : 'N/A', '', deCls)}
+        ${mCard('영업이익률', latestOPM !== '-' ? latestOPM+'%' : 'N/A')}
+        ${mCard('순이익률', latestNPM !== '-' ? latestNPM+'%' : 'N/A')}
+        ${mCard('EPS', latestEPS !== '-' ? latestEPS+'원' : 'N/A')}
+        ${mCard('주당배당금', latestDIV !== '-' ? latestDIV+'원' : 'N/A')}
       </div>
     </div>
-    ${yf.history?.length ? `<div class="analysis-section">
-      <div class="analysis-section-title">📈 연간 실적 (최근 ${yf.history.length}년)</div>
+    <div class="analysis-section">
+      <div class="analysis-section-title">📈 연간 실적 <span style="font-size:11px;color:var(--text3);font-weight:400">(억원)</span></div>
       <div style="overflow-x:auto">
         <table class="analysis-fin-table">
           <thead><tr>
-            <th>연도</th><th>매출</th><th>매총이익</th><th>순이익</th>
+            <th style="text-align:left">연도</th><th>매출액</th><th>영업이익</th><th>순이익</th><th>영업이익률</th><th>ROE</th>
           </tr></thead>
-          <tbody>
-            ${yf.history.map(y=>`<tr>
-              <td>${y.year}</td>
-              <td>${fBig(y.rev)}</td>
-              <td>${fBig(y.gross)}</td>
-              <td class="${y.net>0?'up':y.net<0?'dn':''}">${fBig(y.net)}</td>
-            </tr>`).join('')}
-          </tbody>
+          <tbody>${annualTableRows}</tbody>
         </table>
       </div>
-    </div>` : ''}
+    </div>
+    <div class="analysis-section">
+      <div class="analysis-section-title">💬 AI 코멘트</div>
+      <div class="analysis-comments">
+        ${comments.map(c=>`<div class="analysis-comment ${c.type}">${c.text}</div>`).join('') ||
+          '<div style="font-size:13px;color:var(--text3)">데이터가 부족하여 코멘트를 생성할 수 없습니다.</div>'}
+      </div>
+      <a href="https://finance.naver.com/item/main.naver?code=${ticker}" target="_blank" class="analysis-ext-link" style="margin-top:10px;display:inline-block;">🔗 네이버 금융 상세보기 →</a>
+    </div>`;
+
+  } else {
+    // ── Yahoo Finance 폴백 (해외 주식) ──
+    const perCls  = (yf.per != null && yf.per < 15) ? 'good' : (yf.per != null && yf.per > 30) ? 'warn' : '';
+    const roeCls  = (yf.roe != null && yf.roe > 0.15) ? 'good' : (yf.roe != null && yf.roe < 0) ? 'warn' : '';
+    const deCls   = (yf.debtToEquity != null && yf.debtToEquity > 200) ? 'warn' : '';
+    finSection = `
+    <div class="analysis-section">
+      <div class="analysis-section-title">📊 핵심 투자지표</div>
+      <div class="analysis-metric-grid">
+        ${mCard('PER', yf.per != null ? fNum(yf.per,1)+'배' : 'N/A', yf.forwardPer ? `선행 ${fNum(yf.forwardPer,1)}배` : '', perCls)}
+        ${mCard('PBR', yf.pbr != null ? fNum(yf.pbr,2)+'배' : 'N/A')}
+        ${mCard('ROE', fPct(yf.roe), '', roeCls)}
+        ${mCard('부채비율', yf.debtToEquity != null ? fNum(yf.debtToEquity,0)+'%' : 'N/A', '', deCls)}
+        ${mCard('순이익률', fPct(yf.netMargin))}
+        ${mCard('배당수익률', fPct(yf.divYield))}
+      </div>
+    </div>
     <div class="analysis-section">
       <div class="analysis-section-title">💬 AI 코멘트</div>
       <div class="analysis-comments">
         ${_buildComments(yf).map(c=>`<div class="analysis-comment ${c.type}">${c.text}</div>`).join('') ||
-          '<div style="font-size:13px;color:var(--text3)">데이터가 부족하여 코멘트를 생성할 수 없습니다.</div>'}
+          '<div style="font-size:13px;color:var(--text3)">데이터가 부족합니다.</div>'}
       </div>
-      ${isKr ? `<a href="https://finance.naver.com/item/main.naver?code=${ticker}" target="_blank" class="analysis-ext-link" style="margin-top:10px;display:inline-block;">🔗 네이버 금융 상세보기 →</a>` : ''}
+      <a href="https://finance.yahoo.com/quote/${ticker}" target="_blank" class="analysis-ext-link" style="margin-top:10px;display:inline-block;">🔗 Yahoo Finance 상세보기 →</a>
     </div>`;
   }
 
@@ -5649,6 +5730,36 @@ function _buildComments(yf) {
     const eg = yf.earningsGrowth * 100;
     if      (eg >  20) c.push({type:'good', text:`✅ 전년 대비 이익 성장률 ${eg.toFixed(0)}%로 고성장 중입니다.`});
     else if (eg < -20) c.push({type:'warn', text:`⚠️ 전년 대비 이익이 ${Math.abs(eg).toFixed(0)}% 감소했습니다. 이익 추세를 모니터링하세요.`});
+  }
+  return c;
+}
+
+// 네이버 재무 데이터 기반 AI 코멘트 (perN, roeN, deN, npmN은 숫자)
+function _buildCommentsNaver(perN, roeN, deN, npmN) {
+  const c = [];
+  if (!isNaN(perN) && perN !== 0) {
+    if      (perN < 0)   c.push({type:'warn',    text:`⚠️ PER이 음수(${perN.toFixed(1)}배)입니다. 적자 또는 일시적 손실 상태일 수 있습니다.`});
+    else if (perN < 10)  c.push({type:'good',    text:`✅ PER ${perN.toFixed(1)}배로 저평가 구간입니다. 저PER의 원인을 반드시 확인하세요.`});
+    else if (perN <= 20) c.push({type:'neutral',  text:`📌 PER ${perN.toFixed(1)}배로 적정 밸류에이션 구간입니다.`});
+    else if (perN <= 35) c.push({type:'neutral',  text:`📌 PER ${perN.toFixed(1)}배로 성장 기대가 반영된 수준입니다.`});
+    else                  c.push({type:'warn',    text:`⚠️ PER ${perN.toFixed(1)}배로 고평가 구간입니다. 높은 성장이 뒷받침되지 않으면 조정 가능성이 있습니다.`});
+  }
+  if (!isNaN(roeN)) {
+    if      (roeN > 20)  c.push({type:'good',    text:`✅ ROE ${roeN.toFixed(1)}%로 수익성이 매우 우수합니다.`});
+    else if (roeN > 10)  c.push({type:'good',    text:`✅ ROE ${roeN.toFixed(1)}%로 양호한 수익성을 보입니다.`});
+    else if (roeN >  0)  c.push({type:'neutral',  text:`📌 ROE ${roeN.toFixed(1)}%로 수익성이 평균 수준입니다.`});
+    else                  c.push({type:'warn',    text:`⚠️ ROE가 마이너스(${roeN.toFixed(1)}%)입니다. 자본 훼손 여부를 확인하세요.`});
+  }
+  if (!isNaN(deN) && deN >= 0) {
+    if      (deN > 300)  c.push({type:'warn',    text:`⚠️ 부채비율 ${deN.toFixed(0)}%로 재무 안정성에 주의가 필요합니다.`});
+    else if (deN > 150)  c.push({type:'neutral',  text:`📌 부채비율 ${deN.toFixed(0)}%로 다소 높은 편입니다.`});
+    else                  c.push({type:'good',    text:`✅ 부채비율 ${deN.toFixed(0)}%로 재무 구조가 안정적입니다.`});
+  }
+  if (!isNaN(npmN)) {
+    if      (npmN > 15)  c.push({type:'good',    text:`✅ 순이익률 ${npmN.toFixed(1)}%로 고마진 구조입니다.`});
+    else if (npmN >  5)  c.push({type:'neutral',  text:`📌 순이익률 ${npmN.toFixed(1)}%로 양호한 수익 구조입니다.`});
+    else if (npmN >= 0)  c.push({type:'neutral',  text:`📌 순이익률 ${npmN.toFixed(1)}%로 수익성 개선 여부를 주시하세요.`});
+    else                  c.push({type:'warn',    text:`⚠️ 순이익률 ${npmN.toFixed(1)}%로 적자 상태입니다.`});
   }
   return c;
 }
