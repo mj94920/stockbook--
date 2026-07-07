@@ -5326,7 +5326,8 @@ document.addEventListener('keydown', e => {
 // 모바일 standalone 인트로 (TWA/PWA 설치 앱 전용)
 (function() {
   const isStandalone = window.navigator.standalone ||
-    window.matchMedia('(display-mode: standalone)').matches;
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.matchMedia('(display-mode: fullscreen)').matches;
   if (isStandalone) {
     const intro = document.getElementById('mobileIntro');
     if (intro) {
