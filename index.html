@@ -3657,10 +3657,12 @@ function renderSummary() {
   const el = document.getElementById('htsSummary');
   if (!el) return;
   el.innerHTML = cells.map(cell => `
-    <div class="hts-bar-cell${cell.click?' clickable':''}" ${cell.click?`onclick="${cell.click}"`:''}> 
+    <div class="hts-bar-cell${cell.click?' clickable':''}" ${cell.click?`onclick="${cell.click}"`:''}>
       <div class="hts-bar-label">${cell.label}</div>
       <div class="hts-bar-val ${cell.cls}">${cell.val}</div>
     </div>`).join('');
+  // 잔고 탭 헤더도 동기화 (예수금/총잔고 수치)
+  try { renderBalanceSummary(); } catch(e) {}
 }
 
 function renderPortfolioBar() {
@@ -3735,7 +3737,8 @@ function renderPortfolio() {
   const q = (document.getElementById('stockSearch').value||'').toLowerCase();
   const p = state.portfolio.filter(s => !q || s.name.toLowerCase().includes(q) || (s.ticker||'').toLowerCase().includes(q));
   const totalVal = state.portfolio.reduce((a,s) => a + (s.currentPrice||s.avgPrice)*s.qty, 0);
-  const weightBase = state.totalAsset > 0 ? state.totalAsset : totalVal;
+  const weightBase = state.cashManual != null ? state.cashManual + totalVal
+      : state.totalAsset > 0 ? state.totalAsset : totalVal;
   const body = document.getElementById('portfolioBody');
   const empty = document.getElementById('portfolioEmpty');
   if (!p.length) { body.innerHTML=''; empty.style.display='block'; return; }

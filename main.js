@@ -128,6 +128,25 @@ ipcMain.handle('fetch-quote', async (_event, rawTicker) => {
   return null;
 });
 
+// ── IPC: 네이버 금융 재무 데이터 (annual + summary) ─────────────────────────
+ipcMain.handle('fetch-naver-finance', async (_event, code) => {
+  if (!code || !/^\d{6}$/.test(code.trim())) return null;
+  const base = `https://m.stock.naver.com/api/stock/${code.trim()}`;
+  try {
+    const [annualBody, summaryBody] = await Promise.all([
+      httpsGet(`${base}/finance/annual`),
+      httpsGet(`${base}/finance/summary`),
+    ]);
+    return {
+      annual:  JSON.parse(annualBody),
+      summary: JSON.parse(summaryBody),
+    };
+  } catch (e) {
+    console.error('[StockBook] fetch-naver-finance 오류:', e.message);
+    return null;
+  }
+});
+
 // ── IPC 핸들러 ──────────────────────────────────────────────────────────────
 ipcMain.handle('load-state', async () => {
   try {
