@@ -1471,6 +1471,21 @@
     .portfolio-table .hts-action-btn {
       padding: 4px 5px !important;
     }
+    /* 종목명 셀 — 긴 이름이 가격 컬럼과 겹치는 현상 방지 */
+    .portfolio-table td.name-cell {
+      max-width: 90px;
+      overflow: hidden;
+    }
+    .portfolio-table td.name-cell strong {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .portfolio-table td.name-cell .ticker,
+    .portfolio-table td.name-cell .sector {
+      display: none;
+    }
   }
 
   /* ── 모바일 브라우저 URL바 자동 숨기기 — body 여유 높이 ── */
