@@ -168,7 +168,7 @@
   - 1.2.0 exe 재빌드 완료
 - StockBook 1.2.0.exe를 `StockBook-PWA` 폴더로 교체 (구버전 1.1.4.exe 삭제)
 - .gitignore에 `node_modules/`, `*.exe`, `*.zip` 추가
-- v1.2.0 전체 변경사항 GitHub push 완료 (`github.com/mj94920/stockbook--`)
+- v1.2.0 전체 변경사항 GitHub push 완료 (`github.com/mj94920/stockbook`)
   - 모바일 TWA 앱은 APK 재빌드 없이 GitHub Pages HTML 업데이트만으로 갱신됨 (network-first SW 전략)
 
 ## 미결 사항
